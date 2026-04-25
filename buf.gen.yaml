@@ -1,5 +1,6 @@
 version: v2
 plugins:
+  # Go server code
   - remote: buf.build/protocolbuffers/go
     out: gen
     opt:
@@ -8,3 +9,12 @@ plugins:
     out: gen
     opt:
       - paths=source_relative
+  # TypeScript client code
+  - remote: buf.build/bufbuild/es
+    out: client/gen
+    opt:
+      - target=ts
+  - remote: buf.build/connectrpc/es
+    out: client/gen
+    opt:
+      - target=ts

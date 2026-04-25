@@ -14,8 +14,8 @@ import (
 	"golang.org/x/net/http2/h2c"
 
 	financev1connect "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1/financev1connect"
+	"github.com/kiridovg/lifepilot-finance-service/internal/db"
 	"github.com/kiridovg/lifepilot-finance-service/internal/handler"
-	"github.com/kiridovg/lifepilot-finance-service/internal/repository"
 )
 
 func main() {
@@ -34,12 +34,12 @@ func main() {
 	}
 	defer pool.Close()
 
-	repo := repository.New(pool)
+	q := db.New(pool)
 	mux := http.NewServeMux()
 
-	mux.Handle(financev1connect.NewExpenseServiceHandler(handler.NewExpenseHandler(repo)))
-	mux.Handle(financev1connect.NewTransferServiceHandler(handler.NewTransferHandler(repo)))
-	mux.Handle(financev1connect.NewAccountServiceHandler(handler.NewAccountHandler(repo)))
+	mux.Handle(financev1connect.NewExpenseServiceHandler(handler.NewExpenseHandler(q)))
+	mux.Handle(financev1connect.NewTransferServiceHandler(handler.NewTransferHandler(pool)))
+	mux.Handle(financev1connect.NewAccountServiceHandler(handler.NewAccountHandler(pool)))
 
 	addr := ":" + getEnv("PORT", "8080")
 	srv := &http.Server{
