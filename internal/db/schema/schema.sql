@@ -1,18 +1,3 @@
-CREATE TABLE expenses (
-    id               SERIAL PRIMARY KEY,
-    description      TEXT NOT NULL,
-    amount           DECIMAL(10, 2) NOT NULL,
-    currency         TEXT NOT NULL,
-    charged_amount   DECIMAL(10, 2),
-    charged_currency TEXT,
-    payment_method   TEXT NOT NULL DEFAULT 'cash',
-    category         TEXT,
-    transfer_id      INTEGER REFERENCES transfers (id) ON DELETE CASCADE,
-    date             TIMESTAMPTZ(3) NOT NULL,
-    created_at       TIMESTAMPTZ(3) NOT NULL DEFAULT NOW(),
-    updated_at       TIMESTAMPTZ(3) NOT NULL DEFAULT NOW()
-);
-
 CREATE TABLE transfers (
     id                  SERIAL PRIMARY KEY,
     from_amount         DECIMAL(12, 2) NOT NULL,
@@ -27,6 +12,21 @@ CREATE TABLE transfers (
     date                TIMESTAMPTZ(3) NOT NULL,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE expenses (
+    id               SERIAL PRIMARY KEY,
+    description      TEXT NOT NULL,
+    amount           DECIMAL(10, 2) NOT NULL,
+    currency         TEXT NOT NULL,
+    charged_amount   DECIMAL(10, 2),
+    charged_currency TEXT,
+    payment_method   TEXT NOT NULL DEFAULT 'cash',
+    category         TEXT,
+    transfer_id      INTEGER REFERENCES transfers (id) ON DELETE CASCADE,
+    date             TIMESTAMPTZ(3) NOT NULL,
+    created_at       TIMESTAMPTZ(3) NOT NULL DEFAULT NOW(),
+    updated_at       TIMESTAMPTZ(3) NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE accounts (
