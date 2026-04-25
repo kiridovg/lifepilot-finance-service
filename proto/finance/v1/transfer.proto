@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package finance.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
+
+message Transfer {
+  int32 id = 1;
+  string from_amount = 2;
+  string from_currency = 3;
+  string to_amount = 4;
+  string to_currency = 5;
+  string commission = 6;
+  optional string commission_currency = 7;
+  optional string from_payment_method = 8;
+  optional string to_payment_method = 9;
+  optional string note = 10;
+  google.protobuf.Timestamp date = 11;
+  google.protobuf.Timestamp created_at = 12;
+}
+
+message ListTransfersRequest {}
+
+message ListTransfersResponse {
+  repeated Transfer transfers = 1;
+}
+
+message CreateTransferRequest {
+  string from_amount = 1;
+  string from_currency = 2;
+  string to_amount = 3;
+  string to_currency = 4;
+  string commission = 5;
+  optional string commission_currency = 6;
+  optional string from_payment_method = 7;
+  optional string to_payment_method = 8;
+  optional string note = 9;
+  google.protobuf.Timestamp date = 10;
+}
+
+message CreateTransferResponse {
+  Transfer transfer = 1;
+}
+
+message DeleteTransferRequest {
+  int32 id = 1;
+}
+
+message DeleteTransferResponse {}
+
+service TransferService {
+  rpc ListTransfers(ListTransfersRequest) returns (ListTransfersResponse);
+  rpc CreateTransfer(CreateTransferRequest) returns (CreateTransferResponse);
+  rpc DeleteTransfer(DeleteTransferRequest) returns (DeleteTransferResponse);
+}
