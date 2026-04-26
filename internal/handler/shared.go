@@ -41,6 +41,9 @@ func nullNumericToPtr(n pgtype.Numeric) *string {
 
 func numericToFloat(n pgtype.Numeric) float64 {
 	f, _ := n.Float64Value()
+	if f.Float64 == 0 {
+		return 0
+	}
 	return f.Float64
 }
 
