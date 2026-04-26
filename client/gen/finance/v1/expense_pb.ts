@@ -16,52 +16,57 @@ export class Expense extends Message<Expense> {
   id = "";
 
   /**
-   * @generated from field: string account_id = 2;
+   * @generated from field: string user_id = 2;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: string account_id = 3;
    */
   accountId = "";
 
   /**
-   * @generated from field: string amount = 3;
+   * @generated from field: string amount = 4;
    */
   amount = "";
 
   /**
-   * @generated from field: string currency = 4;
+   * @generated from field: string currency = 5;
    */
   currency = "";
 
   /**
-   * @generated from field: optional string charged_amount = 5;
+   * @generated from field: optional string charged_amount = 6;
    */
   chargedAmount?: string;
 
   /**
-   * @generated from field: optional string charged_currency = 6;
+   * @generated from field: optional string charged_currency = 7;
    */
   chargedCurrency?: string;
 
   /**
-   * @generated from field: optional string category_id = 7;
+   * @generated from field: optional string category_id = 8;
    */
   categoryId?: string;
 
   /**
-   * @generated from field: optional string description = 8;
+   * @generated from field: optional string description = 9;
    */
   description?: string;
 
   /**
-   * @generated from field: optional string transfer_id = 9;
+   * @generated from field: optional string transfer_id = 10;
    */
   transferId?: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp date = 10;
+   * @generated from field: google.protobuf.Timestamp date = 11;
    */
   date?: Timestamp;
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 11;
+   * @generated from field: google.protobuf.Timestamp created_at = 12;
    */
   createdAt?: Timestamp;
 
@@ -74,16 +79,17 @@ export class Expense extends Message<Expense> {
   static readonly typeName = "finance.v1.Expense";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "charged_amount", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 6, name: "charged_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 7, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 8, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 9, name: "transfer_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 10, name: "date", kind: "message", T: Timestamp },
-    { no: 11, name: "created_at", kind: "message", T: Timestamp },
+    { no: 2, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "charged_amount", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 7, name: "charged_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 8, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 9, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 10, name: "transfer_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 11, name: "date", kind: "message", T: Timestamp },
+    { no: 12, name: "created_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Expense {
@@ -108,22 +114,27 @@ export class Expense extends Message<Expense> {
  */
 export class ListExpensesRequest extends Message<ListExpensesRequest> {
   /**
-   * @generated from field: optional string account_id = 1;
+   * @generated from field: optional string user_id = 1;
+   */
+  userId?: string;
+
+  /**
+   * @generated from field: optional string account_id = 2;
    */
   accountId?: string;
 
   /**
-   * @generated from field: optional string category_id = 2;
+   * @generated from field: optional string category_id = 3;
    */
   categoryId?: string;
 
   /**
-   * @generated from field: optional google.protobuf.Timestamp date_from = 3;
+   * @generated from field: optional google.protobuf.Timestamp date_from = 4;
    */
   dateFrom?: Timestamp;
 
   /**
-   * @generated from field: optional google.protobuf.Timestamp date_to = 4;
+   * @generated from field: optional google.protobuf.Timestamp date_to = 5;
    */
   dateTo?: Timestamp;
 
@@ -135,10 +146,11 @@ export class ListExpensesRequest extends Message<ListExpensesRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "finance.v1.ListExpensesRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 2, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 3, name: "date_from", kind: "message", T: Timestamp, opt: true },
-    { no: 4, name: "date_to", kind: "message", T: Timestamp, opt: true },
+    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 2, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "date_from", kind: "message", T: Timestamp, opt: true },
+    { no: 5, name: "date_to", kind: "message", T: Timestamp, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListExpensesRequest {
@@ -200,42 +212,47 @@ export class ListExpensesResponse extends Message<ListExpensesResponse> {
  */
 export class CreateExpenseRequest extends Message<CreateExpenseRequest> {
   /**
-   * @generated from field: string account_id = 1;
+   * @generated from field: string user_id = 1;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: string account_id = 2;
    */
   accountId = "";
 
   /**
-   * @generated from field: string amount = 2;
+   * @generated from field: string amount = 3;
    */
   amount = "";
 
   /**
-   * @generated from field: string currency = 3;
+   * @generated from field: string currency = 4;
    */
   currency = "";
 
   /**
-   * @generated from field: optional string charged_amount = 4;
+   * @generated from field: optional string charged_amount = 5;
    */
   chargedAmount?: string;
 
   /**
-   * @generated from field: optional string charged_currency = 5;
+   * @generated from field: optional string charged_currency = 6;
    */
   chargedCurrency?: string;
 
   /**
-   * @generated from field: optional string category_id = 6;
+   * @generated from field: optional string category_id = 7;
    */
   categoryId?: string;
 
   /**
-   * @generated from field: optional string description = 7;
+   * @generated from field: optional string description = 8;
    */
   description?: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp date = 8;
+   * @generated from field: google.protobuf.Timestamp date = 9;
    */
   date?: Timestamp;
 
@@ -247,14 +264,15 @@ export class CreateExpenseRequest extends Message<CreateExpenseRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "finance.v1.CreateExpenseRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "charged_amount", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 5, name: "charged_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 6, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 7, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 8, name: "date", kind: "message", T: Timestamp },
+    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "charged_amount", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 6, name: "charged_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 7, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 8, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 9, name: "date", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateExpenseRequest {

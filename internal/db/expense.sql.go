@@ -12,13 +12,14 @@ import (
 )
 
 const createExpense = `-- name: CreateExpense :one
-INSERT INTO expenses (date, amount, currency, charged_amount, charged_currency,
+INSERT INTO expenses (user_id, date, amount, currency, charged_amount, charged_currency,
                       account_id, category_id, description, transfer_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at
 `
 
 type CreateExpenseParams struct {
+	UserID          pgtype.UUID
 	Date            pgtype.Timestamptz
 	Amount          pgtype.Numeric
 	Currency        string
@@ -32,6 +33,7 @@ type CreateExpenseParams struct {
 
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (Expense, error) {
 	row := q.db.QueryRow(ctx, createExpense,
+		arg.UserID,
 		arg.Date,
 		arg.Amount,
 		arg.Currency,
@@ -45,6 +47,7 @@ func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (E
 	var i Expense
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Date,
 		&i.Amount,
 		&i.Currency,
@@ -70,7 +73,7 @@ func (q *Queries) DeleteExpense(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listExpenses = `-- name: ListExpenses :many
-SELECT id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses ORDER BY date DESC
 `
 
 func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
@@ -84,6 +87,7 @@ func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
 		var i Expense
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
 			&i.Date,
 			&i.Amount,
 			&i.Currency,
@@ -107,7 +111,7 @@ func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
 }
 
 const listExpensesByAccount = `-- name: ListExpensesByAccount :many
-SELECT id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses
 WHERE account_id = $1
 ORDER BY date DESC
 `
@@ -123,6 +127,45 @@ func (q *Queries) ListExpensesByAccount(ctx context.Context, accountID pgtype.UU
 		var i Expense
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
+			&i.Date,
+			&i.Amount,
+			&i.Currency,
+			&i.ChargedAmount,
+			&i.ChargedCurrency,
+			&i.AccountID,
+			&i.CategoryID,
+			&i.Description,
+			&i.TransferID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listExpensesByUser = `-- name: ListExpensesByUser :many
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses WHERE user_id = $1 ORDER BY date DESC
+`
+
+func (q *Queries) ListExpensesByUser(ctx context.Context, userID pgtype.UUID) ([]Expense, error) {
+	rows, err := q.db.Query(ctx, listExpensesByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Expense
+	for rows.Next() {
+		var i Expense
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
 			&i.Date,
 			&i.Amount,
 			&i.Currency,
@@ -156,7 +199,7 @@ SET amount           = COALESCE($1, amount),
     date             = COALESCE($7, date),
     updated_at       = NOW()
 WHERE id = $8
-RETURNING id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at
 `
 
 type UpdateExpenseParams struct {
@@ -184,6 +227,7 @@ func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (E
 	var i Expense
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Date,
 		&i.Amount,
 		&i.Currency,

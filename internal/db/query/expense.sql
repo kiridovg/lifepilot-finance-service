@@ -1,7 +1,7 @@
 -- name: CreateExpense :one
-INSERT INTO expenses (date, amount, currency, charged_amount, charged_currency,
+INSERT INTO expenses (user_id, date, amount, currency, charged_amount, charged_currency,
                       account_id, category_id, description, transfer_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *;
 
 -- name: ListExpensesByAccount :many
@@ -11,6 +11,9 @@ ORDER BY date DESC;
 
 -- name: ListExpenses :many
 SELECT * FROM expenses ORDER BY date DESC;
+
+-- name: ListExpensesByUser :many
+SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC;
 
 -- name: UpdateExpense :one
 UPDATE expenses

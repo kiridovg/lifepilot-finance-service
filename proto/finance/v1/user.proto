@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package finance.v1;
+
+option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
+
+message User {
+  string id   = 1;
+  string name = 2;
+}
+
+message ListUsersRequest {}
+message ListUsersResponse { repeated User users = 1; }
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+}

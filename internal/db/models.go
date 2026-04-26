@@ -10,6 +10,7 @@ import (
 
 type Account struct {
 	ID             pgtype.UUID
+	UserID         pgtype.UUID
 	Name           string
 	PaymentMethod  pgtype.Text
 	Currency       string
@@ -39,6 +40,7 @@ type Currency struct {
 
 type Expense struct {
 	ID              pgtype.UUID
+	UserID          pgtype.UUID
 	Date            pgtype.Timestamptz
 	Amount          pgtype.Numeric
 	Currency        string
@@ -67,4 +69,10 @@ type Transfer struct {
 	LinkedTransferID   pgtype.UUID
 	CreatedAt          pgtype.Timestamptz
 	UpdatedAt          pgtype.Timestamptz
+}
+
+type User struct {
+	ID        pgtype.UUID
+	Name      string
+	CreatedAt pgtype.Timestamptz
 }

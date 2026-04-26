@@ -22,7 +22,14 @@ func NewAccountHandler(pool *pgxpool.Pool) *AccountHandler {
 
 func (h *AccountHandler) ListAccounts(ctx context.Context, req *connect.Request[financev1.ListAccountsRequest]) (*connect.Response[financev1.ListAccountsResponse], error) {
 	q := db.New(h.pool)
-	rows, err := q.ListActiveAccounts(ctx)
+
+	var rows []db.Account
+	var err error
+	if req.Msg.UserId != nil {
+		rows, err = q.ListActiveAccountsByUser(ctx, uuidFromString(*req.Msg.UserId))
+	} else {
+		rows, err = q.ListActiveAccounts(ctx)
+	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -41,6 +48,7 @@ func (h *AccountHandler) ListAccounts(ctx context.Context, req *connect.Request[
 func (h *AccountHandler) CreateAccount(ctx context.Context, req *connect.Request[financev1.CreateAccountRequest]) (*connect.Response[financev1.CreateAccountResponse], error) {
 	m := req.Msg
 	r, err := db.New(h.pool).CreateAccount(ctx, db.CreateAccountParams{
+		UserID:         uuidFromString(m.UserId),
 		Name:           m.Name,
 		Currency:       m.Currency,
 		PaymentMethod:  nullTextFromPtr(m.PaymentMethod),
@@ -124,6 +132,7 @@ func accountToProto(r db.Account, totalExpenses, transfersOut, transfersIn float
 
 	return &financev1.Account{
 		Id:             uuidToString(r.ID),
+		UserId:         uuidToString(r.UserID),
 		Name:           r.Name,
 		Currency:       r.Currency,
 		PaymentMethod:  nullTextToPtr(r.PaymentMethod),

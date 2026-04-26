@@ -8,31 +8,35 @@ option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v
 
 message Account {
   string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string currency = 4;
+  optional string payment_method = 5;
+  string initial_balance = 6;
+  string initial_date = 7;
+  bool is_active = 8;
+  optional string notes = 9;
+  google.protobuf.Timestamp created_at = 10;
+  // computed
+  double balance = 11;
+  double total_expenses = 12;
+  double transfers_out = 13;
+  double transfers_in = 14;
+}
+
+message ListAccountsRequest {
+  optional string user_id = 1;
+}
+message ListAccountsResponse { repeated Account accounts = 1; }
+
+message CreateAccountRequest {
+  string user_id = 1;
   string name = 2;
   string currency = 3;
   optional string payment_method = 4;
   string initial_balance = 5;
   string initial_date = 6;
-  bool is_active = 7;
-  optional string notes = 8;
-  google.protobuf.Timestamp created_at = 9;
-  // computed
-  double balance = 10;
-  double total_expenses = 11;
-  double transfers_out = 12;
-  double transfers_in = 13;
-}
-
-message ListAccountsRequest {}
-message ListAccountsResponse { repeated Account accounts = 1; }
-
-message CreateAccountRequest {
-  string name = 1;
-  string currency = 2;
-  optional string payment_method = 3;
-  string initial_balance = 4;
-  string initial_date = 5;
-  optional string notes = 6;
+  optional string notes = 7;
 }
 message CreateAccountResponse { Account account = 1; }
 

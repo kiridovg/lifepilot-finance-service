@@ -8,6 +8,30 @@ option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v
 
 message Expense {
   string id = 1;
+  string user_id = 2;
+  string account_id = 3;
+  string amount = 4;
+  string currency = 5;
+  optional string charged_amount = 6;
+  optional string charged_currency = 7;
+  optional string category_id = 8;
+  optional string description = 9;
+  optional string transfer_id = 10;
+  google.protobuf.Timestamp date = 11;
+  google.protobuf.Timestamp created_at = 12;
+}
+
+message ListExpensesRequest {
+  optional string user_id = 1;
+  optional string account_id = 2;
+  optional string category_id = 3;
+  optional google.protobuf.Timestamp date_from = 4;
+  optional google.protobuf.Timestamp date_to = 5;
+}
+message ListExpensesResponse { repeated Expense expenses = 1; }
+
+message CreateExpenseRequest {
+  string user_id = 1;
   string account_id = 2;
   string amount = 3;
   string currency = 4;
@@ -15,28 +39,7 @@ message Expense {
   optional string charged_currency = 6;
   optional string category_id = 7;
   optional string description = 8;
-  optional string transfer_id = 9;
-  google.protobuf.Timestamp date = 10;
-  google.protobuf.Timestamp created_at = 11;
-}
-
-message ListExpensesRequest {
-  optional string account_id = 1;
-  optional string category_id = 2;
-  optional google.protobuf.Timestamp date_from = 3;
-  optional google.protobuf.Timestamp date_to = 4;
-}
-message ListExpensesResponse { repeated Expense expenses = 1; }
-
-message CreateExpenseRequest {
-  string account_id = 1;
-  string amount = 2;
-  string currency = 3;
-  optional string charged_amount = 4;
-  optional string charged_currency = 5;
-  optional string category_id = 6;
-  optional string description = 7;
-  google.protobuf.Timestamp date = 8;
+  google.protobuf.Timestamp date = 9;
 }
 message CreateExpenseResponse { Expense expense = 1; }
 

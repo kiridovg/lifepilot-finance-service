@@ -33,9 +33,16 @@ INSERT INTO categories (id, name, type) VALUES
     ('00000000-0000-0000-0000-000000000004', 'Transport',  'expense'),
     ('00000000-0000-0000-0000-000000000005', 'Income',     'income');
 
+CREATE TABLE users (
+    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name       TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Account = provider + currency (one physical card can have multiple accounts)
 CREATE TABLE accounts (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID        NOT NULL REFERENCES users (id),
     name            TEXT    NOT NULL,
     payment_method  TEXT,                              -- "wise" | "kaspi" | "cash" | null
     currency        TEXT    NOT NULL,                  -- "EUR" | "KZT" | "USD" | ...
@@ -75,6 +82,7 @@ CREATE TABLE transfers (
 -- transfer_id: if this is a transfer fee — excluded from balance, shown in bank-fees stats
 CREATE TABLE expenses (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id           UUID        NOT NULL REFERENCES users (id),
     date              TIMESTAMPTZ NOT NULL,
     amount            DECIMAL(18, 8) NOT NULL,
     currency          TEXT        NOT NULL,

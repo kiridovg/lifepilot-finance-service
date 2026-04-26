@@ -25,16 +25,17 @@ const (
 type Expense struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AccountId       string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	Amount          string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	ChargedAmount   *string                `protobuf:"bytes,5,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
-	ChargedCurrency *string                `protobuf:"bytes,6,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
-	CategoryId      *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	Description     *string                `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	TransferId      *string                `protobuf:"bytes,9,opt,name=transfer_id,json=transferId,proto3,oneof" json:"transfer_id,omitempty"`
-	Date            *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
-	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UserId          string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AccountId       string                 `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Amount          string                 `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency        string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	ChargedAmount   *string                `protobuf:"bytes,6,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
+	ChargedCurrency *string                `protobuf:"bytes,7,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
+	CategoryId      *string                `protobuf:"bytes,8,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	Description     *string                `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	TransferId      *string                `protobuf:"bytes,10,opt,name=transfer_id,json=transferId,proto3,oneof" json:"transfer_id,omitempty"`
+	Date            *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -72,6 +73,13 @@ func (*Expense) Descriptor() ([]byte, []int) {
 func (x *Expense) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *Expense) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -148,10 +156,11 @@ func (x *Expense) GetCreatedAt() *timestamppb.Timestamp {
 
 type ListExpensesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     *string                `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
-	CategoryId    *string                `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	DateFrom      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_from,json=dateFrom,proto3,oneof" json:"date_from,omitempty"`
-	DateTo        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_to,json=dateTo,proto3,oneof" json:"date_to,omitempty"`
+	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
+	AccountId     *string                `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
+	CategoryId    *string                `protobuf:"bytes,3,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	DateFrom      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_from,json=dateFrom,proto3,oneof" json:"date_from,omitempty"`
+	DateTo        *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_to,json=dateTo,proto3,oneof" json:"date_to,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -184,6 +193,13 @@ func (x *ListExpensesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListExpensesRequest.ProtoReflect.Descriptor instead.
 func (*ListExpensesRequest) Descriptor() ([]byte, []int) {
 	return file_finance_v1_expense_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListExpensesRequest) GetUserId() string {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return ""
 }
 
 func (x *ListExpensesRequest) GetAccountId() string {
@@ -260,14 +276,15 @@ func (x *ListExpensesResponse) GetExpenses() []*Expense {
 
 type CreateExpenseRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	AccountId       string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	Amount          string                 `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
-	ChargedAmount   *string                `protobuf:"bytes,4,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
-	ChargedCurrency *string                `protobuf:"bytes,5,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
-	CategoryId      *string                `protobuf:"bytes,6,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	Description     *string                `protobuf:"bytes,7,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Date            *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date,proto3" json:"date,omitempty"`
+	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AccountId       string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Amount          string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency        string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	ChargedAmount   *string                `protobuf:"bytes,5,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
+	ChargedCurrency *string                `protobuf:"bytes,6,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
+	CategoryId      *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	Description     *string                `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Date            *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -300,6 +317,13 @@ func (x *CreateExpenseRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateExpenseRequest.ProtoReflect.Descriptor instead.
 func (*CreateExpenseRequest) Descriptor() ([]byte, []int) {
 	return file_finance_v1_expense_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateExpenseRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 func (x *CreateExpenseRequest) GetAccountId() string {
@@ -631,9 +655,50 @@ var File_finance_v1_expense_proto protoreflect.FileDescriptor
 const file_finance_v1_expense_proto_rawDesc = "" +
 	"\n" +
 	"\x18finance/v1/expense.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x03\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x04\n" +
 	"\aExpense\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x03 \x01(\tR\taccountId\x12\x16\n" +
+	"\x06amount\x18\x04 \x01(\tR\x06amount\x12\x1a\n" +
+	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12*\n" +
+	"\x0echarged_amount\x18\x06 \x01(\tH\x00R\rchargedAmount\x88\x01\x01\x12.\n" +
+	"\x10charged_currency\x18\a \x01(\tH\x01R\x0fchargedCurrency\x88\x01\x01\x12$\n" +
+	"\vcategory_id\x18\b \x01(\tH\x02R\n" +
+	"categoryId\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\t \x01(\tH\x03R\vdescription\x88\x01\x01\x12$\n" +
+	"\vtransfer_id\x18\n" +
+	" \x01(\tH\x04R\n" +
+	"transferId\x88\x01\x01\x12.\n" +
+	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
+	"\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x11\n" +
+	"\x0f_charged_amountB\x13\n" +
+	"\x11_charged_currencyB\x0e\n" +
+	"\f_category_idB\x0e\n" +
+	"\f_descriptionB\x0e\n" +
+	"\f_transfer_id\"\xba\x02\n" +
+	"\x13ListExpensesRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"account_id\x18\x02 \x01(\tH\x01R\taccountId\x88\x01\x01\x12$\n" +
+	"\vcategory_id\x18\x03 \x01(\tH\x02R\n" +
+	"categoryId\x88\x01\x01\x12<\n" +
+	"\tdate_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\bdateFrom\x88\x01\x01\x128\n" +
+	"\adate_to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x04R\x06dateTo\x88\x01\x01B\n" +
+	"\n" +
+	"\b_user_idB\r\n" +
+	"\v_account_idB\x0e\n" +
+	"\f_category_idB\f\n" +
+	"\n" +
+	"_date_fromB\n" +
+	"\n" +
+	"\b_date_to\"G\n" +
+	"\x14ListExpensesResponse\x12/\n" +
+	"\bexpenses\x18\x01 \x03(\v2\x13.finance.v1.ExpenseR\bexpenses\"\xa3\x03\n" +
+	"\x14CreateExpenseRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x02 \x01(\tR\taccountId\x12\x16\n" +
 	"\x06amount\x18\x03 \x01(\tR\x06amount\x12\x1a\n" +
@@ -642,44 +707,8 @@ const file_finance_v1_expense_proto_rawDesc = "" +
 	"\x10charged_currency\x18\x06 \x01(\tH\x01R\x0fchargedCurrency\x88\x01\x01\x12$\n" +
 	"\vcategory_id\x18\a \x01(\tH\x02R\n" +
 	"categoryId\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\b \x01(\tH\x03R\vdescription\x88\x01\x01\x12$\n" +
-	"\vtransfer_id\x18\t \x01(\tH\x04R\n" +
-	"transferId\x88\x01\x01\x12.\n" +
-	"\x04date\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
-	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x11\n" +
-	"\x0f_charged_amountB\x13\n" +
-	"\x11_charged_currencyB\x0e\n" +
-	"\f_category_idB\x0e\n" +
-	"\f_descriptionB\x0e\n" +
-	"\f_transfer_id\"\x90\x02\n" +
-	"\x13ListExpensesRequest\x12\"\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tH\x00R\taccountId\x88\x01\x01\x12$\n" +
-	"\vcategory_id\x18\x02 \x01(\tH\x01R\n" +
-	"categoryId\x88\x01\x01\x12<\n" +
-	"\tdate_from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\bdateFrom\x88\x01\x01\x128\n" +
-	"\adate_to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\x06dateTo\x88\x01\x01B\r\n" +
-	"\v_account_idB\x0e\n" +
-	"\f_category_idB\f\n" +
-	"\n" +
-	"_date_fromB\n" +
-	"\n" +
-	"\b_date_to\"G\n" +
-	"\x14ListExpensesResponse\x12/\n" +
-	"\bexpenses\x18\x01 \x03(\v2\x13.finance.v1.ExpenseR\bexpenses\"\x8a\x03\n" +
-	"\x14CreateExpenseRequest\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\tR\x06amount\x12\x1a\n" +
-	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12*\n" +
-	"\x0echarged_amount\x18\x04 \x01(\tH\x00R\rchargedAmount\x88\x01\x01\x12.\n" +
-	"\x10charged_currency\x18\x05 \x01(\tH\x01R\x0fchargedCurrency\x88\x01\x01\x12$\n" +
-	"\vcategory_id\x18\x06 \x01(\tH\x02R\n" +
-	"categoryId\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\a \x01(\tH\x03R\vdescription\x88\x01\x01\x12.\n" +
-	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x11\n" +
+	"\vdescription\x18\b \x01(\tH\x03R\vdescription\x88\x01\x01\x12.\n" +
+	"\x04date\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +

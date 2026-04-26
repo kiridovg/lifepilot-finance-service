@@ -20,7 +20,14 @@ func NewExpenseHandler(q *db.Queries) *ExpenseHandler {
 }
 
 func (h *ExpenseHandler) ListExpenses(ctx context.Context, req *connect.Request[financev1.ListExpensesRequest]) (*connect.Response[financev1.ListExpensesResponse], error) {
-	rows, err := h.q.ListExpenses(ctx)
+	var rows []db.Expense
+	var err error
+
+	if req.Msg.UserId != nil {
+		rows, err = h.q.ListExpensesByUser(ctx, uuidFromString(*req.Msg.UserId))
+	} else {
+		rows, err = h.q.ListExpenses(ctx)
+	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -35,6 +42,7 @@ func (h *ExpenseHandler) ListExpenses(ctx context.Context, req *connect.Request[
 func (h *ExpenseHandler) CreateExpense(ctx context.Context, req *connect.Request[financev1.CreateExpenseRequest]) (*connect.Response[financev1.CreateExpenseResponse], error) {
 	m := req.Msg
 	r, err := h.q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:          uuidFromString(m.UserId),
 		AccountID:       uuidFromString(m.AccountId),
 		Amount:          numericFromString(m.Amount),
 		Currency:        m.Currency,
@@ -82,6 +90,7 @@ func (h *ExpenseHandler) DeleteExpense(ctx context.Context, req *connect.Request
 func expenseToProto(r db.Expense) *financev1.Expense {
 	return &financev1.Expense{
 		Id:              uuidToString(r.ID),
+		UserId:          uuidToString(r.UserID),
 		AccountId:       uuidToString(r.AccountID),
 		Amount:          numericToString(r.Amount),
 		Currency:        r.Currency,

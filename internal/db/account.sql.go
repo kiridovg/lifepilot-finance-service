@@ -12,12 +12,13 @@ import (
 )
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO accounts (name, payment_method, currency, initial_balance, initial_date, notes)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at
+INSERT INTO accounts (user_id, name, payment_method, currency, initial_balance, initial_date, notes)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at
 `
 
 type CreateAccountParams struct {
+	UserID         pgtype.UUID
 	Name           string
 	PaymentMethod  pgtype.Text
 	Currency       string
@@ -28,6 +29,7 @@ type CreateAccountParams struct {
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
 	row := q.db.QueryRow(ctx, createAccount,
+		arg.UserID,
 		arg.Name,
 		arg.PaymentMethod,
 		arg.Currency,
@@ -38,6 +40,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 	var i Account
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Name,
 		&i.PaymentMethod,
 		&i.Currency,
@@ -61,7 +64,7 @@ func (q *Queries) DeactivateAccount(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getAccount = `-- name: GetAccount :one
-SELECT id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts WHERE id = $1
+SELECT id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts WHERE id = $1
 `
 
 func (q *Queries) GetAccount(ctx context.Context, id pgtype.UUID) (Account, error) {
@@ -69,6 +72,7 @@ func (q *Queries) GetAccount(ctx context.Context, id pgtype.UUID) (Account, erro
 	var i Account
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Name,
 		&i.PaymentMethod,
 		&i.Currency,
@@ -151,7 +155,7 @@ func (q *Queries) GetAccountTransfersOut(ctx context.Context, arg GetAccountTran
 }
 
 const listActiveAccounts = `-- name: ListActiveAccounts :many
-SELECT id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts WHERE is_active = true ORDER BY created_at
+SELECT id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts WHERE is_active = true ORDER BY user_id, created_at
 `
 
 func (q *Queries) ListActiveAccounts(ctx context.Context) ([]Account, error) {
@@ -165,6 +169,43 @@ func (q *Queries) ListActiveAccounts(ctx context.Context) ([]Account, error) {
 		var i Account
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.PaymentMethod,
+			&i.Currency,
+			&i.InitialBalance,
+			&i.InitialDate,
+			&i.IsActive,
+			&i.Notes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listActiveAccountsByUser = `-- name: ListActiveAccountsByUser :many
+SELECT id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts WHERE is_active = true AND user_id = $1 ORDER BY created_at
+`
+
+func (q *Queries) ListActiveAccountsByUser(ctx context.Context, userID pgtype.UUID) ([]Account, error) {
+	rows, err := q.db.Query(ctx, listActiveAccountsByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Account
+	for rows.Next() {
+		var i Account
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
 			&i.Name,
 			&i.PaymentMethod,
 			&i.Currency,
@@ -193,7 +234,7 @@ SET name            = COALESCE($1, name),
     notes           = COALESCE($4, notes),
     updated_at      = NOW()
 WHERE id = $5
-RETURNING id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at
+RETURNING id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at
 `
 
 type UpdateAccountParams struct {
@@ -215,6 +256,7 @@ func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (A
 	var i Account
 	err := row.Scan(
 		&i.ID,
+		&i.UserID,
 		&i.Name,
 		&i.PaymentMethod,
 		&i.Currency,

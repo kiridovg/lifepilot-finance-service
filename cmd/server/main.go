@@ -47,6 +47,7 @@ func main() {
 	mux.Handle(financev1connect.NewTransferServiceHandler(handler.NewTransferHandler(pool)))
 	mux.Handle(financev1connect.NewAccountServiceHandler(handler.NewAccountHandler(pool)))
 	mux.Handle(financev1connect.NewCurrencyServiceHandler(handler.NewCurrencyHandler(pool)))
+	mux.Handle(financev1connect.NewUserServiceHandler(handler.NewUserHandler(pool)))
 
 	addr := ":" + getEnv("PORT", "8080")
 	srv := &http.Server{

@@ -1,13 +1,16 @@
 -- name: CreateAccount :one
-INSERT INTO accounts (name, payment_method, currency, initial_balance, initial_date, notes)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO accounts (user_id, name, payment_method, currency, initial_balance, initial_date, notes)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1;
 
 -- name: ListActiveAccounts :many
-SELECT * FROM accounts WHERE is_active = true ORDER BY created_at;
+SELECT * FROM accounts WHERE is_active = true ORDER BY user_id, created_at;
+
+-- name: ListActiveAccountsByUser :many
+SELECT * FROM accounts WHERE is_active = true AND user_id = $1 ORDER BY created_at;
 
 -- name: UpdateAccount :one
 UPDATE accounts

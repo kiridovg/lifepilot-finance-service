@@ -25,19 +25,20 @@ const (
 type Account struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Currency       string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
-	PaymentMethod  *string                `protobuf:"bytes,4,opt,name=payment_method,json=paymentMethod,proto3,oneof" json:"payment_method,omitempty"`
-	InitialBalance string                 `protobuf:"bytes,5,opt,name=initial_balance,json=initialBalance,proto3" json:"initial_balance,omitempty"`
-	InitialDate    string                 `protobuf:"bytes,6,opt,name=initial_date,json=initialDate,proto3" json:"initial_date,omitempty"`
-	IsActive       bool                   `protobuf:"varint,7,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	Notes          *string                `protobuf:"bytes,8,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UserId         string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Currency       string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	PaymentMethod  *string                `protobuf:"bytes,5,opt,name=payment_method,json=paymentMethod,proto3,oneof" json:"payment_method,omitempty"`
+	InitialBalance string                 `protobuf:"bytes,6,opt,name=initial_balance,json=initialBalance,proto3" json:"initial_balance,omitempty"`
+	InitialDate    string                 `protobuf:"bytes,7,opt,name=initial_date,json=initialDate,proto3" json:"initial_date,omitempty"`
+	IsActive       bool                   `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	Notes          *string                `protobuf:"bytes,9,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// computed
-	Balance       float64 `protobuf:"fixed64,10,opt,name=balance,proto3" json:"balance,omitempty"`
-	TotalExpenses float64 `protobuf:"fixed64,11,opt,name=total_expenses,json=totalExpenses,proto3" json:"total_expenses,omitempty"`
-	TransfersOut  float64 `protobuf:"fixed64,12,opt,name=transfers_out,json=transfersOut,proto3" json:"transfers_out,omitempty"`
-	TransfersIn   float64 `protobuf:"fixed64,13,opt,name=transfers_in,json=transfersIn,proto3" json:"transfers_in,omitempty"`
+	Balance       float64 `protobuf:"fixed64,11,opt,name=balance,proto3" json:"balance,omitempty"`
+	TotalExpenses float64 `protobuf:"fixed64,12,opt,name=total_expenses,json=totalExpenses,proto3" json:"total_expenses,omitempty"`
+	TransfersOut  float64 `protobuf:"fixed64,13,opt,name=transfers_out,json=transfersOut,proto3" json:"transfers_out,omitempty"`
+	TransfersIn   float64 `protobuf:"fixed64,14,opt,name=transfers_in,json=transfersIn,proto3" json:"transfers_in,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +76,13 @@ func (*Account) Descriptor() ([]byte, []int) {
 func (x *Account) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *Account) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -165,6 +173,7 @@ func (x *Account) GetTransfersIn() float64 {
 
 type ListAccountsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        *string                `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -197,6 +206,13 @@ func (x *ListAccountsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListAccountsRequest.ProtoReflect.Descriptor instead.
 func (*ListAccountsRequest) Descriptor() ([]byte, []int) {
 	return file_finance_v1_account_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListAccountsRequest) GetUserId() string {
+	if x != nil && x.UserId != nil {
+		return *x.UserId
+	}
+	return ""
 }
 
 type ListAccountsResponse struct {
@@ -245,12 +261,13 @@ func (x *ListAccountsResponse) GetAccounts() []*Account {
 
 type CreateAccountRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Currency       string                 `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
-	PaymentMethod  *string                `protobuf:"bytes,3,opt,name=payment_method,json=paymentMethod,proto3,oneof" json:"payment_method,omitempty"`
-	InitialBalance string                 `protobuf:"bytes,4,opt,name=initial_balance,json=initialBalance,proto3" json:"initial_balance,omitempty"`
-	InitialDate    string                 `protobuf:"bytes,5,opt,name=initial_date,json=initialDate,proto3" json:"initial_date,omitempty"`
-	Notes          *string                `protobuf:"bytes,6,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
+	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Currency       string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
+	PaymentMethod  *string                `protobuf:"bytes,4,opt,name=payment_method,json=paymentMethod,proto3,oneof" json:"payment_method,omitempty"`
+	InitialBalance string                 `protobuf:"bytes,5,opt,name=initial_balance,json=initialBalance,proto3" json:"initial_balance,omitempty"`
+	InitialDate    string                 `protobuf:"bytes,6,opt,name=initial_date,json=initialDate,proto3" json:"initial_date,omitempty"`
+	Notes          *string                `protobuf:"bytes,7,opt,name=notes,proto3,oneof" json:"notes,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -283,6 +300,13 @@ func (x *CreateAccountRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateAccountRequest.ProtoReflect.Descriptor instead.
 func (*CreateAccountRequest) Descriptor() ([]byte, []int) {
 	return file_finance_v1_account_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateAccountRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 func (x *CreateAccountRequest) GetName() string {
@@ -576,35 +600,40 @@ var File_finance_v1_account_proto protoreflect.FileDescriptor
 const file_finance_v1_account_proto_rawDesc = "" +
 	"\n" +
 	"\x18finance/v1/account.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xda\x03\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf3\x03\n" +
 	"\aAccount\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1a\n" +
+	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12*\n" +
+	"\x0epayment_method\x18\x05 \x01(\tH\x00R\rpaymentMethod\x88\x01\x01\x12'\n" +
+	"\x0finitial_balance\x18\x06 \x01(\tR\x0einitialBalance\x12!\n" +
+	"\finitial_date\x18\a \x01(\tR\vinitialDate\x12\x1b\n" +
+	"\tis_active\x18\b \x01(\bR\bisActive\x12\x19\n" +
+	"\x05notes\x18\t \x01(\tH\x01R\x05notes\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x18\n" +
+	"\abalance\x18\v \x01(\x01R\abalance\x12%\n" +
+	"\x0etotal_expenses\x18\f \x01(\x01R\rtotalExpenses\x12#\n" +
+	"\rtransfers_out\x18\r \x01(\x01R\ftransfersOut\x12!\n" +
+	"\ftransfers_in\x18\x0e \x01(\x01R\vtransfersInB\x11\n" +
+	"\x0f_payment_methodB\b\n" +
+	"\x06_notes\"?\n" +
+	"\x13ListAccountsRequest\x12\x1c\n" +
+	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01B\n" +
+	"\n" +
+	"\b_user_id\"G\n" +
+	"\x14ListAccountsResponse\x12/\n" +
+	"\baccounts\x18\x01 \x03(\v2\x13.finance.v1.AccountR\baccounts\"\x8f\x02\n" +
+	"\x14CreateAccountRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12*\n" +
 	"\x0epayment_method\x18\x04 \x01(\tH\x00R\rpaymentMethod\x88\x01\x01\x12'\n" +
 	"\x0finitial_balance\x18\x05 \x01(\tR\x0einitialBalance\x12!\n" +
-	"\finitial_date\x18\x06 \x01(\tR\vinitialDate\x12\x1b\n" +
-	"\tis_active\x18\a \x01(\bR\bisActive\x12\x19\n" +
-	"\x05notes\x18\b \x01(\tH\x01R\x05notes\x88\x01\x01\x129\n" +
-	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x18\n" +
-	"\abalance\x18\n" +
-	" \x01(\x01R\abalance\x12%\n" +
-	"\x0etotal_expenses\x18\v \x01(\x01R\rtotalExpenses\x12#\n" +
-	"\rtransfers_out\x18\f \x01(\x01R\ftransfersOut\x12!\n" +
-	"\ftransfers_in\x18\r \x01(\x01R\vtransfersInB\x11\n" +
-	"\x0f_payment_methodB\b\n" +
-	"\x06_notes\"\x15\n" +
-	"\x13ListAccountsRequest\"G\n" +
-	"\x14ListAccountsResponse\x12/\n" +
-	"\baccounts\x18\x01 \x03(\v2\x13.finance.v1.AccountR\baccounts\"\xf6\x01\n" +
-	"\x14CreateAccountRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\x12*\n" +
-	"\x0epayment_method\x18\x03 \x01(\tH\x00R\rpaymentMethod\x88\x01\x01\x12'\n" +
-	"\x0finitial_balance\x18\x04 \x01(\tR\x0einitialBalance\x12!\n" +
-	"\finitial_date\x18\x05 \x01(\tR\vinitialDate\x12\x19\n" +
-	"\x05notes\x18\x06 \x01(\tH\x01R\x05notes\x88\x01\x01B\x11\n" +
+	"\finitial_date\x18\x06 \x01(\tR\vinitialDate\x12\x19\n" +
+	"\x05notes\x18\a \x01(\tH\x01R\x05notes\x88\x01\x01B\x11\n" +
 	"\x0f_payment_methodB\b\n" +
 	"\x06_notes\"F\n" +
 	"\x15CreateAccountResponse\x12-\n" +
@@ -681,6 +710,7 @@ func file_finance_v1_account_proto_init() {
 		return
 	}
 	file_finance_v1_account_proto_msgTypes[0].OneofWrappers = []any{}
+	file_finance_v1_account_proto_msgTypes[1].OneofWrappers = []any{}
 	file_finance_v1_account_proto_msgTypes[3].OneofWrappers = []any{}
 	file_finance_v1_account_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}

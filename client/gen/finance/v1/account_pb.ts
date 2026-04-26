@@ -16,64 +16,69 @@ export class Account extends Message<Account> {
   id = "";
 
   /**
-   * @generated from field: string name = 2;
+   * @generated from field: string user_id = 2;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: string name = 3;
    */
   name = "";
 
   /**
-   * @generated from field: string currency = 3;
+   * @generated from field: string currency = 4;
    */
   currency = "";
 
   /**
-   * @generated from field: optional string payment_method = 4;
+   * @generated from field: optional string payment_method = 5;
    */
   paymentMethod?: string;
 
   /**
-   * @generated from field: string initial_balance = 5;
+   * @generated from field: string initial_balance = 6;
    */
   initialBalance = "";
 
   /**
-   * @generated from field: string initial_date = 6;
+   * @generated from field: string initial_date = 7;
    */
   initialDate = "";
 
   /**
-   * @generated from field: bool is_active = 7;
+   * @generated from field: bool is_active = 8;
    */
   isActive = false;
 
   /**
-   * @generated from field: optional string notes = 8;
+   * @generated from field: optional string notes = 9;
    */
   notes?: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp created_at = 9;
+   * @generated from field: google.protobuf.Timestamp created_at = 10;
    */
   createdAt?: Timestamp;
 
   /**
    * computed
    *
-   * @generated from field: double balance = 10;
+   * @generated from field: double balance = 11;
    */
   balance = 0;
 
   /**
-   * @generated from field: double total_expenses = 11;
+   * @generated from field: double total_expenses = 12;
    */
   totalExpenses = 0;
 
   /**
-   * @generated from field: double transfers_out = 12;
+   * @generated from field: double transfers_out = 13;
    */
   transfersOut = 0;
 
   /**
-   * @generated from field: double transfers_in = 13;
+   * @generated from field: double transfers_in = 14;
    */
   transfersIn = 0;
 
@@ -86,18 +91,19 @@ export class Account extends Message<Account> {
   static readonly typeName = "finance.v1.Account";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "payment_method", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 5, name: "initial_balance", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "initial_date", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "is_active", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 8, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 9, name: "created_at", kind: "message", T: Timestamp },
-    { no: 10, name: "balance", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 11, name: "total_expenses", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 12, name: "transfers_out", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 13, name: "transfers_in", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 2, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "payment_method", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 6, name: "initial_balance", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "initial_date", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "is_active", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 9, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 10, name: "created_at", kind: "message", T: Timestamp },
+    { no: 11, name: "balance", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 12, name: "total_expenses", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 13, name: "transfers_out", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 14, name: "transfers_in", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Account {
@@ -121,6 +127,11 @@ export class Account extends Message<Account> {
  * @generated from message finance.v1.ListAccountsRequest
  */
 export class ListAccountsRequest extends Message<ListAccountsRequest> {
+  /**
+   * @generated from field: optional string user_id = 1;
+   */
+  userId?: string;
+
   constructor(data?: PartialMessage<ListAccountsRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -129,6 +140,7 @@ export class ListAccountsRequest extends Message<ListAccountsRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "finance.v1.ListAccountsRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListAccountsRequest {
@@ -190,32 +202,37 @@ export class ListAccountsResponse extends Message<ListAccountsResponse> {
  */
 export class CreateAccountRequest extends Message<CreateAccountRequest> {
   /**
-   * @generated from field: string name = 1;
+   * @generated from field: string user_id = 1;
+   */
+  userId = "";
+
+  /**
+   * @generated from field: string name = 2;
    */
   name = "";
 
   /**
-   * @generated from field: string currency = 2;
+   * @generated from field: string currency = 3;
    */
   currency = "";
 
   /**
-   * @generated from field: optional string payment_method = 3;
+   * @generated from field: optional string payment_method = 4;
    */
   paymentMethod?: string;
 
   /**
-   * @generated from field: string initial_balance = 4;
+   * @generated from field: string initial_balance = 5;
    */
   initialBalance = "";
 
   /**
-   * @generated from field: string initial_date = 5;
+   * @generated from field: string initial_date = 6;
    */
   initialDate = "";
 
   /**
-   * @generated from field: optional string notes = 6;
+   * @generated from field: optional string notes = 7;
    */
   notes?: string;
 
@@ -227,12 +244,13 @@ export class CreateAccountRequest extends Message<CreateAccountRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "finance.v1.CreateAccountRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "payment_method", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 4, name: "initial_balance", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "initial_date", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 1, name: "user_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "payment_method", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 5, name: "initial_balance", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "initial_date", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "notes", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateAccountRequest {
