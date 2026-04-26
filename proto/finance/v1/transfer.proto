@@ -7,47 +7,42 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
 
 message Transfer {
-  int32 id = 1;
-  string from_amount = 2;
-  string from_currency = 3;
-  string to_amount = 4;
-  string to_currency = 5;
-  string commission = 6;
-  optional string commission_currency = 7;
-  optional string from_payment_method = 8;
-  optional string to_payment_method = 9;
-  optional string note = 10;
-  google.protobuf.Timestamp date = 11;
-  google.protobuf.Timestamp created_at = 12;
+  string id = 1;
+  // NULL = external source (income, deposit return)
+  optional string from_account_id = 2;
+  optional string from_amount = 3;
+  optional string from_currency = 4;
+  // NULL = external recipient (outgoing transfer, deposit sent)
+  optional string to_account_id = 5;
+  string to_amount = 6;
+  string to_currency = 7;
+  optional string commission = 8;
+  optional string commission_currency = 9;
+  optional string description = 10;
+  optional string linked_transfer_id = 11;
+  google.protobuf.Timestamp date = 12;
+  google.protobuf.Timestamp created_at = 13;
 }
 
 message ListTransfersRequest {}
-
-message ListTransfersResponse {
-  repeated Transfer transfers = 1;
-}
+message ListTransfersResponse { repeated Transfer transfers = 1; }
 
 message CreateTransferRequest {
-  string from_amount = 1;
-  string from_currency = 2;
-  string to_amount = 3;
-  string to_currency = 4;
-  string commission = 5;
-  optional string commission_currency = 6;
-  optional string from_payment_method = 7;
-  optional string to_payment_method = 8;
-  optional string note = 9;
-  google.protobuf.Timestamp date = 10;
+  optional string from_account_id = 1;
+  optional string from_amount = 2;
+  optional string from_currency = 3;
+  optional string to_account_id = 4;
+  string to_amount = 5;
+  string to_currency = 6;
+  optional string commission = 7;
+  optional string commission_currency = 8;
+  optional string description = 9;
+  optional string linked_transfer_id = 10;
+  google.protobuf.Timestamp date = 11;
 }
+message CreateTransferResponse { Transfer transfer = 1; }
 
-message CreateTransferResponse {
-  Transfer transfer = 1;
-}
-
-message DeleteTransferRequest {
-  int32 id = 1;
-}
-
+message DeleteTransferRequest { string id = 1; }
 message DeleteTransferResponse {}
 
 service TransferService {

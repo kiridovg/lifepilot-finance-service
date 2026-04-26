@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+// --- numeric ---
 
 func numericFromString(s string) pgtype.Numeric {
 	var n pgtype.Numeric
@@ -24,7 +28,7 @@ func numericToString(n pgtype.Numeric) string {
 		return "0"
 	}
 	f, _ := n.Float64Value()
-	return strconv.FormatFloat(f.Float64, 'f', 2, 64)
+	return strconv.FormatFloat(f.Float64, 'f', 8, 64)
 }
 
 func nullNumericToPtr(n pgtype.Numeric) *string {
@@ -33,6 +37,20 @@ func nullNumericToPtr(n pgtype.Numeric) *string {
 	}
 	s := numericToString(n)
 	return &s
+}
+
+func numericToFloat(n pgtype.Numeric) float64 {
+	f, _ := n.Float64Value()
+	return f.Float64
+}
+
+// --- text ---
+
+func nullTextFromPtr(s *string) pgtype.Text {
+	if s == nil {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: *s, Valid: true}
 }
 
 func nullTextToPtr(t pgtype.Text) *string {
@@ -49,6 +67,61 @@ func strDeref(s *string) string {
 	return *s
 }
 
-func nullText(s *string) pgtype.Text {
-	return pgtype.Text{String: strDeref(s), Valid: s != nil}
+// --- uuid ---
+
+func uuidFromString(s string) pgtype.UUID {
+	var u pgtype.UUID
+	_ = u.Scan(s)
+	return u
+}
+
+func uuidToString(u pgtype.UUID) string {
+	if !u.Valid {
+		return ""
+	}
+	b := u.Bytes
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
+		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+}
+
+func nullUUIDFromPtr(s *string) pgtype.UUID {
+	if s == nil {
+		return pgtype.UUID{}
+	}
+	return uuidFromString(*s)
+}
+
+func nullUUIDToPtr(u pgtype.UUID) *string {
+	if !u.Valid {
+		return nil
+	}
+	s := uuidToString(u)
+	return &s
+}
+
+// --- date ---
+
+func dateFromString(s string) pgtype.Date {
+	t, _ := time.Parse("2006-01-02", s)
+	return pgtype.Date{Time: t, Valid: true}
+}
+
+func nullDateFromPtr(s *string) pgtype.Date {
+	if s == nil {
+		return pgtype.Date{}
+	}
+	return dateFromString(*s)
+}
+
+// --- system categories (fixed UUIDs from schema seed) ---
+
+func systemCategoryUUID(name string) pgtype.UUID {
+	ids := map[string]string{
+		"bank-fees": "00000000-0000-0000-0000-000000000001",
+		"exchange":  "00000000-0000-0000-0000-000000000002",
+		"food":      "00000000-0000-0000-0000-000000000003",
+		"transport": "00000000-0000-0000-0000-000000000004",
+		"income":    "00000000-0000-0000-0000-000000000005",
+	}
+	return uuidFromString(ids[name])
 }

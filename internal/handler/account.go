@@ -2,8 +2,6 @@ package handler
 
 import (
 	"context"
-	"strconv"
-	"time"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -43,130 +41,100 @@ func (h *AccountHandler) ListAccounts(ctx context.Context, req *connect.Request[
 func (h *AccountHandler) CreateAccount(ctx context.Context, req *connect.Request[financev1.CreateAccountRequest]) (*connect.Response[financev1.CreateAccountResponse], error) {
 	m := req.Msg
 	r, err := db.New(h.pool).CreateAccount(ctx, db.CreateAccountParams{
-		Name:              m.Name,
-		Currency:          m.Currency,
-		PaymentMethodCode: nullText(m.PaymentMethodCode),
-		InitialBalance:    numericFromString(strconv.FormatFloat(m.InitialBalance, 'f', 2, 64)),
-		InitialDate:       m.InitialDate,
+		Name:           m.Name,
+		Currency:       m.Currency,
+		PaymentMethod:  nullTextFromPtr(m.PaymentMethod),
+		InitialBalance: numericFromString(m.InitialBalance),
+		InitialDate:    dateFromString(m.InitialDate),
+		Notes:          nullTextFromPtr(m.Notes),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	return connect.NewResponse(&financev1.CreateAccountResponse{
-		Account: accountToProto(r.ID, r.Name, r.Currency, r.PaymentMethodCode, r.InitialBalance, r.InitialDate, r.IsActive, r.CreatedAt, 0, 0, 0),
+		Account: accountToProto(r, 0, 0, 0),
 	}), nil
 }
 
 func (h *AccountHandler) UpdateAccount(ctx context.Context, req *connect.Request[financev1.UpdateAccountRequest]) (*connect.Response[financev1.UpdateAccountResponse], error) {
 	m := req.Msg
-	var balanceNull pgtype.Numeric
-	if m.InitialBalance != nil {
-		balanceNull = numericFromString(strconv.FormatFloat(*m.InitialBalance, 'f', 2, 64))
-	}
-
 	q := db.New(h.pool)
+
 	r, err := q.UpdateAccount(ctx, db.UpdateAccountParams{
-		ID:             m.Id,
-		Name:           nullText(m.Name),
-		InitialBalance: balanceNull,
-		InitialDate:    nullText(m.InitialDate),
+		ID:             uuidFromString(m.Id),
+		Name:           nullTextFromPtr(m.Name),
+		InitialBalance: nullNumericFromPtr(m.InitialBalance),
+		InitialDate:    nullDateFromPtr(m.InitialDate),
+		Notes:          nullTextFromPtr(m.Notes),
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	row := db.ListActiveAccountsRow{
-		ID:                r.ID,
-		Name:              r.Name,
-		Currency:          r.Currency,
-		PaymentMethodCode: r.PaymentMethodCode,
-		InitialBalance:    r.InitialBalance,
-		InitialDate:       r.InitialDate,
-		IsActive:          r.IsActive,
-		CreatedAt:         r.CreatedAt,
-	}
-	a, err := h.withBalance(ctx, q, row)
+	a, err := h.withBalance(ctx, q, r)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	return connect.NewResponse(&financev1.UpdateAccountResponse{Account: a}), nil
 }
 
-func (h *AccountHandler) DeleteAccount(ctx context.Context, req *connect.Request[financev1.DeleteAccountRequest]) (*connect.Response[financev1.DeleteAccountResponse], error) {
-	if err := db.New(h.pool).DeleteAccount(ctx, req.Msg.Id); err != nil {
+func (h *AccountHandler) DeactivateAccount(ctx context.Context, req *connect.Request[financev1.DeactivateAccountRequest]) (*connect.Response[financev1.DeactivateAccountResponse], error) {
+	if err := db.New(h.pool).DeactivateAccount(ctx, uuidFromString(req.Msg.Id)); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&financev1.DeleteAccountResponse{}), nil
+	return connect.NewResponse(&financev1.DeactivateAccountResponse{}), nil
 }
 
-func (h *AccountHandler) withBalance(ctx context.Context, q *db.Queries, r db.ListActiveAccountsRow) (*financev1.Account, error) {
-	if !r.PaymentMethodCode.Valid {
-		return accountToProto(r.ID, r.Name, r.Currency, r.PaymentMethodCode, r.InitialBalance, r.InitialDate, r.IsActive, r.CreatedAt, 0, 0, 0), nil
-	}
-
-	initialDate, err := time.Parse("2006-01-02", r.InitialDate)
-	if err != nil {
-		return nil, err
-	}
-	ts := pgtype.Timestamptz{Time: initialDate, Valid: true}
+func (h *AccountHandler) withBalance(ctx context.Context, q *db.Queries, r db.Account) (*financev1.Account, error) {
+	ts := pgtype.Timestamptz{Time: r.InitialDate.Time, Valid: true}
 
 	expTotal, err := q.GetAccountExpenses(ctx, db.GetAccountExpensesParams{
-		ChargedCurrency: pgtype.Text{String: r.Currency, Valid: true}, // $1 = account currency
-		PaymentMethod:   r.PaymentMethodCode.String,
-		Column3:         ts,
+		AccountID:       r.ID,
+		ChargedCurrency: pgtype.Text{String: r.Currency, Valid: true},
+		Date:            ts,
 	})
 	if err != nil {
 		return nil, err
 	}
 	outTotal, err := q.GetAccountTransfersOut(ctx, db.GetAccountTransfersOutParams{
-		FromPaymentMethod: r.PaymentMethodCode,
-		FromCurrency:      r.Currency,
-		Column3:           ts,
+		FromAccountID: r.ID,
+		Date:          ts,
 	})
 	if err != nil {
 		return nil, err
 	}
 	inTotal, err := q.GetAccountTransfersIn(ctx, db.GetAccountTransfersInParams{
-		ToPaymentMethod: r.PaymentMethodCode,
-		ToCurrency:      r.Currency,
-		Column3:         ts,
+		ToAccountID: r.ID,
+		Date:        ts,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	expenses := numericToFloat(expTotal)
-	out := numericToFloat(outTotal)
-	in := numericToFloat(inTotal)
-
-	return accountToProto(r.ID, r.Name, r.Currency, r.PaymentMethodCode, r.InitialBalance, r.InitialDate, r.IsActive, r.CreatedAt, expenses, out, in), nil
+	return accountToProto(r,
+		numericToFloat(expTotal),
+		numericToFloat(outTotal),
+		numericToFloat(inTotal),
+	), nil
 }
 
-func accountToProto(
-	id int32, name, currency string, pm pgtype.Text, initialBalance pgtype.Numeric,
-	initialDate string, isActive bool, createdAt pgtype.Timestamptz,
-	totalExpenses, transfersOut, transfersIn float64,
-) *financev1.Account {
-	initial := numericToFloat(initialBalance)
+func accountToProto(r db.Account, totalExpenses, transfersOut, transfersIn float64) *financev1.Account {
+	initial := numericToFloat(r.InitialBalance)
 	balance := initial - totalExpenses - transfersOut + transfersIn
 
 	return &financev1.Account{
-		Id:                id,
-		Name:              name,
-		Currency:          currency,
-		PaymentMethodCode: nullTextToPtr(pm),
-		InitialBalance:    numericToString(initialBalance),
-		InitialDate:       initialDate,
-		IsActive:          isActive,
-		CreatedAt:         timestamppb.New(createdAt.Time),
-		Balance:           balance,
-		TotalExpenses:     totalExpenses,
-		TransfersOut:      transfersOut,
-		TransfersIn:       transfersIn,
+		Id:             uuidToString(r.ID),
+		Name:           r.Name,
+		Currency:       r.Currency,
+		PaymentMethod:  nullTextToPtr(r.PaymentMethod),
+		InitialBalance: numericToString(r.InitialBalance),
+		InitialDate:    r.InitialDate.Time.Format("2006-01-02"),
+		IsActive:       r.IsActive,
+		Notes:          nullTextToPtr(r.Notes),
+		CreatedAt:      timestamppb.New(r.CreatedAt.Time),
+		Balance:        balance,
+		TotalExpenses:  totalExpenses,
+		TransfersOut:   transfersOut,
+		TransfersIn:    transfersIn,
 	}
-}
-
-func numericToFloat(n pgtype.Numeric) float64 {
-	f, _ := n.Float64Value()
-	return f.Float64
 }

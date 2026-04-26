@@ -7,59 +7,50 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
 
 message Account {
-  int32 id = 1;
+  string id = 1;
   string name = 2;
   string currency = 3;
-  optional string payment_method_code = 4;
+  optional string payment_method = 4;
   string initial_balance = 5;
   string initial_date = 6;
   bool is_active = 7;
-  google.protobuf.Timestamp created_at = 8;
-  // computed fields
-  double balance = 9;
-  double total_expenses = 10;
-  double transfers_out = 11;
-  double transfers_in = 12;
+  optional string notes = 8;
+  google.protobuf.Timestamp created_at = 9;
+  // computed
+  double balance = 10;
+  double total_expenses = 11;
+  double transfers_out = 12;
+  double transfers_in = 13;
 }
 
 message ListAccountsRequest {}
-
-message ListAccountsResponse {
-  repeated Account accounts = 1;
-}
+message ListAccountsResponse { repeated Account accounts = 1; }
 
 message CreateAccountRequest {
   string name = 1;
   string currency = 2;
-  optional string payment_method_code = 3;
-  double initial_balance = 4;
+  optional string payment_method = 3;
+  string initial_balance = 4;
   string initial_date = 5;
+  optional string notes = 6;
 }
-
-message CreateAccountResponse {
-  Account account = 1;
-}
+message CreateAccountResponse { Account account = 1; }
 
 message UpdateAccountRequest {
-  int32 id = 1;
+  string id = 1;
   optional string name = 2;
-  optional double initial_balance = 3;
+  optional string initial_balance = 3;
   optional string initial_date = 4;
+  optional string notes = 5;
 }
+message UpdateAccountResponse { Account account = 1; }
 
-message UpdateAccountResponse {
-  Account account = 1;
-}
-
-message DeleteAccountRequest {
-  int32 id = 1;
-}
-
-message DeleteAccountResponse {}
+message DeactivateAccountRequest { string id = 1; }
+message DeactivateAccountResponse {}
 
 service AccountService {
   rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse);
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
   rpc UpdateAccount(UpdateAccountRequest) returns (UpdateAccountResponse);
-  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+  rpc DeactivateAccount(DeactivateAccountRequest) returns (DeactivateAccountResponse);
 }
