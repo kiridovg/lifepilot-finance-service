@@ -1,5 +1,2 @@
 .env
-gen/
-client/gen/
-internal/db/*.go
 bin/
