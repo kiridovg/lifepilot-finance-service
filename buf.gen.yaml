@@ -9,12 +9,12 @@ plugins:
     out: gen
     opt:
       - paths=source_relative
-  # TypeScript client code
-  - remote: buf.build/bufbuild/es
+  # TypeScript client code (pinned to compatible v1)
+  - remote: buf.build/bufbuild/es:v1.10.0
     out: client/gen
     opt:
       - target=ts
-  - remote: buf.build/connectrpc/es
+  - remote: buf.build/connectrpc/es:v1.6.1
     out: client/gen
     opt:
       - target=ts

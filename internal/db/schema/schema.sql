@@ -1,4 +1,20 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE TABLE currencies (
+    code       TEXT PRIMARY KEY,
+    name       TEXT NOT NULL,
+    symbol     TEXT NOT NULL,
+    is_active  BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO currencies (code, name, symbol) VALUES
+    ('RON', 'Romanian Leu',       'lei'),
+    ('UAH', 'Ukrainian Hryvnia',  '₴'),
+    ('EUR', 'Euro',               '€'),
+    ('USD', 'US Dollar',          '$'),
+    ('PLN', 'Polish Zloty',       'zł'),
+    ('HUF', 'Hungarian Forint',   'Ft'),
+    ('KZT', 'Kazakhstani Tenge',  '₸');
+
 
 -- Categories: expense | income | bank-fees | transfer
 CREATE TABLE categories (

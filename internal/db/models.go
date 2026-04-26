@@ -29,6 +29,14 @@ type Category struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type Currency struct {
+	Code      string
+	Name      string
+	Symbol    string
+	IsActive  bool
+	CreatedAt pgtype.Timestamptz
+}
+
 type Expense struct {
 	ID              pgtype.UUID
 	Date            pgtype.Timestamptz

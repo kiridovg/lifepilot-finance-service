@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package finance.v1;
+
+option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
+
+message Currency {
+  string code   = 1;
+  string name   = 2;
+  string symbol = 3;
+}
+
+message ListCurrenciesRequest {}
+
+message ListCurrenciesResponse {
+  repeated Currency currencies = 1;
+}
+
+service CurrencyService {
+  rpc ListCurrencies(ListCurrenciesRequest) returns (ListCurrenciesResponse);
+}
