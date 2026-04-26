@@ -1,10 +1,6 @@
--- Seed users
 INSERT INTO users (id, name) VALUES
     ('00000000-0000-0000-0000-000000000001', 'Kirill'),
     ('00000000-0000-0000-0000-000000000002', 'Жена');
-
--- Update existing accounts seed to remove old records and re-insert with user_id
-DELETE FROM accounts;
 
 -- Kirill's accounts
 INSERT INTO accounts (name, payment_method, currency, user_id, initial_balance, initial_date) VALUES
@@ -27,7 +23,6 @@ INSERT INTO accounts (name, payment_method, currency, user_id, initial_balance, 
     ('Kaspi',              'kaspi',              'KZT', '00000000-0000-0000-0000-000000000001', 0, '2026-01-01'),
     ('PayPal',             'paypal',             'USD', '00000000-0000-0000-0000-000000000001', 0, '2026-01-01');
 
--- Жена's accounts
 INSERT INTO accounts (name, payment_method, currency, user_id, initial_balance, initial_date) VALUES
     ('BCR',      'bcr',      'USD', '00000000-0000-0000-0000-000000000002', 0, '2026-01-01'),
     ('BCR',      'bcr',      'EUR', '00000000-0000-0000-0000-000000000002', 0, '2026-01-01'),
