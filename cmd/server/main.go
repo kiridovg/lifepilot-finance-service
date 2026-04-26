@@ -81,8 +81,9 @@ func runMigrations(dbURL string, log *slog.Logger) error {
 	}
 
 	res, err := client.MigrateApply(context.Background(), &atlasexec.MigrateApplyParams{
-		URL:    dbURL,
-		DirURL: "file://internal/db/migrations",
+		URL:             dbURL,
+		DirURL:          "file://internal/db/migrations",
+		RevisionsSchema: "public",
 	})
 	if err != nil {
 		return err
