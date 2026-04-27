@@ -60,7 +60,12 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 
 		// Commission expense linked to this transfer (excluded from balance, visible in bank-fees stats)
 		if m.Commission != nil && *m.Commission != "" && *m.Commission != "0" && m.FromAccountId != nil {
+			fromAcc, err := q.GetAccount(ctx, uuidFromString(*m.FromAccountId))
+			if err != nil {
+				return err
+			}
 			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+				UserID:     fromAcc.UserID,
 				Date:       pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 				Amount:     numericFromString(*m.Commission),
 				Currency:   strDeref(m.CommissionCurrency),
