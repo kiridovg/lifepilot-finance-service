@@ -14,6 +14,7 @@ import (
 func createCashUSD(t *testing.T, q *db.Queries, initialBalance string, initialDate string) db.Account {
 	t.Helper()
 	acc, err := q.CreateAccount(context.Background(), db.CreateAccountParams{
+		UserID:         testutil.CreateTestUser(t, q),
 		Name:           "Cash USD",
 		Currency:       "USD",
 		InitialBalance: testutil.Numeric(t, initialBalance),
@@ -60,6 +61,7 @@ func TestExpenseReducesBalance(t *testing.T) {
 	acc := createCashUSD(t, q, "11", "2024-01-01")
 
 	_, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     acc.UserID,
 		Date:       testutil.Timestamptz(t, "2024-01-10"),
 		Amount:     testutil.Numeric(t, "1"),
 		Currency:   "USD",
@@ -80,6 +82,7 @@ func TestMultipleExpenses(t *testing.T) {
 
 	for _, amt := range []string{"10", "20", "5"} {
 		_, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+			UserID:     acc.UserID,
 			Date:       testutil.Timestamptz(t, "2024-02-01"),
 			Amount:     testutil.Numeric(t, amt),
 			Currency:   "USD",
@@ -101,6 +104,7 @@ func TestChargedAmountUsedForForeignExpense(t *testing.T) {
 
 	// Paid 5000 KZT, charged 11.50 USD from account
 	_, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:          acc.UserID,
 		Date:            testutil.Timestamptz(t, "2024-02-01"),
 		Amount:          testutil.Numeric(t, "5000"),
 		Currency:        "KZT",
@@ -122,6 +126,7 @@ func TestDeleteExpenseRestoresBalance(t *testing.T) {
 	acc := createCashUSD(t, q, "50", "2024-01-01")
 
 	exp, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     acc.UserID,
 		Date:       testutil.Timestamptz(t, "2024-01-15"),
 		Amount:     testutil.Numeric(t, "15"),
 		Currency:   "USD",
@@ -143,6 +148,7 @@ func TestUpdateExpenseChangesBalance(t *testing.T) {
 	acc := createCashUSD(t, q, "100", "2024-01-01")
 
 	exp, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     acc.UserID,
 		Date:       testutil.Timestamptz(t, "2024-01-20"),
 		Amount:     testutil.Numeric(t, "10"),
 		Currency:   "USD",

@@ -45,6 +45,7 @@ func TestExpensesIsolatedByAccount(t *testing.T) {
 
 	// Expense on B should not affect A
 	_, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     accB.UserID,
 		Date:       testutil.Timestamptz(t, "2024-02-01"),
 		Amount:     testutil.Numeric(t, "50"),
 		Currency:   "USD",

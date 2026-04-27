@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (name) VALUES ($1) RETURNING id, name, created_at
+`
+
+func (q *Queries) CreateUser(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRow(ctx, createUser, name)
+	var i User
+	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	return i, err
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, name, created_at FROM users ORDER BY created_at
 `

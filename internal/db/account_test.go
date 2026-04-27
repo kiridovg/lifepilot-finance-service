@@ -17,6 +17,7 @@ func TestCreateAndListAccount(t *testing.T) {
 	ctx := context.Background()
 
 	acc, err := q.CreateAccount(ctx, db.CreateAccountParams{
+		UserID:         testutil.CreateTestUser(t, q),
 		Name:           "Cash USD",
 		Currency:       "USD",
 		InitialBalance: testutil.Numeric(t, "100"),
@@ -39,6 +40,7 @@ func TestBalanceNoOperations(t *testing.T) {
 	ctx := context.Background()
 
 	acc, err := q.CreateAccount(ctx, db.CreateAccountParams{
+		UserID:         testutil.CreateTestUser(t, q),
 		Name:           "Cash USD",
 		Currency:       "USD",
 		InitialBalance: testutil.Numeric(t, "11"),
@@ -80,6 +82,7 @@ func TestBalanceIgnoresOldExpenses(t *testing.T) {
 	ctx := context.Background()
 
 	acc, err := q.CreateAccount(ctx, db.CreateAccountParams{
+		UserID:         testutil.CreateTestUser(t, q),
 		Name:           "Old Account",
 		Currency:       "USD",
 		InitialBalance: testutil.Numeric(t, "50"),
@@ -89,6 +92,7 @@ func TestBalanceIgnoresOldExpenses(t *testing.T) {
 
 	// Expense before initialDate — should be ignored in balance
 	_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     acc.UserID,
 		Date:       testutil.Timestamptz(t, "2024-01-15"),
 		Amount:     testutil.Numeric(t, "20"),
 		Currency:   "USD",

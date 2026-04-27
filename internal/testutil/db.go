@@ -90,6 +90,14 @@ func NumericToFloat(t *testing.T, n pgtype.Numeric) float64 {
 	return f.Float64
 }
 
+// CreateTestUser inserts a user and returns its UUID for use in account creation.
+func CreateTestUser(t *testing.T, q *db.Queries) pgtype.UUID {
+	t.Helper()
+	u, err := q.CreateUser(context.Background(), "Test User")
+	require.NoError(t, err)
+	return u.ID
+}
+
 // SystemCategoryID returns one of the seeded system category UUIDs.
 func SystemCategoryID(name string) pgtype.UUID {
 	ids := map[string]string{

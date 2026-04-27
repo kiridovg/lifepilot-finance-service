@@ -13,7 +13,9 @@ import (
 
 func createAccount(t *testing.T, q *db.Queries, name, currency, balance, date string) db.Account {
 	t.Helper()
+	userID := testutil.CreateTestUser(t, q)
 	acc, err := q.CreateAccount(context.Background(), db.CreateAccountParams{
+		UserID:         userID,
 		Name:           name,
 		Currency:       currency,
 		InitialBalance: testutil.Numeric(t, balance),
@@ -90,6 +92,7 @@ func TestTransferWithCommissionNoDoubleCount(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = q.CreateExpense(context.Background(), db.CreateExpenseParams{
+		UserID:     wise.UserID,
 		Date:       testutil.Timestamptz(t, "2024-02-01"),
 		Amount:     testutil.Numeric(t, "0.17"),
 		Currency:   "EUR",
@@ -152,6 +155,7 @@ func TestDeleteTransferCascadesCommission(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     from.UserID,
 		Date:       testutil.Timestamptz(t, "2024-02-01"),
 		Amount:     testutil.Numeric(t, "0.17"),
 		Currency:   "EUR",
