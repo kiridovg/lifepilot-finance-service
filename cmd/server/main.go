@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -83,22 +85,29 @@ func runMigrations(dbURL string, log *slog.Logger) error {
 		return err
 	}
 
-	res, err := client.MigrateApply(context.Background(), &atlasexec.MigrateApplyParams{
-		URL:             dbURL,
-		DirURL:          "file://internal/db/migrations",
-		RevisionsSchema: "public",
-	})
-	if err != nil {
-		return err
+	for attempt := 1; attempt <= 5; attempt++ {
+		res, err := client.MigrateApply(context.Background(), &atlasexec.MigrateApplyParams{
+			URL:             dbURL,
+			DirURL:          "file://internal/db/migrations",
+			RevisionsSchema: "public",
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "lock is held by other session") {
+				log.Warn("migration lock busy, retrying", "attempt", attempt)
+				time.Sleep(time.Duration(attempt) * 2 * time.Second)
+				continue
+			}
+			return err
+		}
+		for _, m := range res.Applied {
+			log.Info("migration applied", "version", m.Version, "description", m.Description)
+		}
+		if res.Current == res.Target {
+			log.Info("migrations up to date", "version", res.Current)
+		}
+		return nil
 	}
-
-	for _, m := range res.Applied {
-		log.Info("migration applied", "version", m.Version, "description", m.Description)
-	}
-	if res.Current == res.Target {
-		log.Info("migrations up to date", "version", res.Current)
-	}
-	return nil
+	return fmt.Errorf("migration lock not released after retries")
 }
 
 func getEnv(key, fallback string) string {
