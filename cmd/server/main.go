@@ -48,6 +48,8 @@ func main() {
 	mux.Handle(financev1connect.NewAccountServiceHandler(handler.NewAccountHandler(pool)))
 	mux.Handle(financev1connect.NewCurrencyServiceHandler(handler.NewCurrencyHandler(pool)))
 	mux.Handle(financev1connect.NewUserServiceHandler(handler.NewUserHandler(pool)))
+	mux.Handle(financev1connect.NewCategoryServiceHandler(handler.NewCategoryHandler(pool)))
+	mux.Handle(financev1connect.NewIncomeServiceHandler(handler.NewIncomeHandler(q)))
 
 	addr := ":" + getEnv("PORT", "8080")
 	srv := &http.Server{

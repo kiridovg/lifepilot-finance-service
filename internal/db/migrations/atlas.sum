@@ -1,6 +1,7 @@
-h1:bPLr+i0rs4M4/a64o5BbJ4oHJR+xqKgphCojm+AT3vg=
+h1:hkZvRVCqp8rw2YGUPVGJJUIFgaOKWF811Z70KFto1H8=
 20260426144833_initial.sql h1:anSp4PU0ypKq67pCnIlUUShiJMF2ErbuQdwMdModHZY=
 20260426145714_seed_data.sql h1:fjojvAW8lQV791MTdRvnYK0GPeVWCuUdIKUHJWm1IOo=
 20260426160406_add_users.sql h1:CG5rkNxN0zYhE6CkwuJ2n3N/PoDHOiu6SAACXAGNH+o=
 20260426160425_seed_users_accounts.sql h1:NGzkvLPY0sp0tWKl20dFESQmTjIUh0NyI0rcrWfuVno=
 20260426160540_enforce_user_not_null.sql h1:eQ7x3VdcP0QgmGTTJzuUpRr2SOlCf+oLnV+L7eFvugU=
+20260427164554_add_incomes_table.sql h1:yJndjTQ32+MEvNtJwYzxBAUJj3V83NxyliREUeSQuCw=

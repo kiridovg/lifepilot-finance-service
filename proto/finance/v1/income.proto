@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package finance.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
+
+message Income {
+  string id = 1;
+  string user_id = 2;
+  string account_id = 3;
+  string amount = 4;
+  string currency = 5;
+  optional string charged_amount = 6;
+  optional string charged_currency = 7;
+  optional string category_id = 8;
+  optional string description = 9;
+  google.protobuf.Timestamp date = 10;
+  google.protobuf.Timestamp created_at = 11;
+}
+
+message ListIncomesRequest {
+  optional string user_id = 1;
+  optional string account_id = 2;
+  optional string category_id = 3;
+  optional google.protobuf.Timestamp date_from = 4;
+  optional google.protobuf.Timestamp date_to = 5;
+}
+message ListIncomesResponse { repeated Income incomes = 1; }
+
+message CreateIncomeRequest {
+  string user_id = 1;
+  string account_id = 2;
+  string amount = 3;
+  string currency = 4;
+  optional string charged_amount = 5;
+  optional string charged_currency = 6;
+  optional string category_id = 7;
+  optional string description = 8;
+  google.protobuf.Timestamp date = 9;
+}
+message CreateIncomeResponse { Income income = 1; }
+
+message UpdateIncomeRequest {
+  string id = 1;
+  optional string amount = 2;
+  optional string currency = 3;
+  optional string charged_amount = 4;
+  optional string charged_currency = 5;
+  optional string category_id = 6;
+  optional string description = 7;
+  optional google.protobuf.Timestamp date = 8;
+}
+message UpdateIncomeResponse { Income income = 1; }
+
+message DeleteIncomeRequest { string id = 1; }
+message DeleteIncomeResponse {}
+
+service IncomeService {
+  rpc ListIncomes(ListIncomesRequest) returns (ListIncomesResponse);
+  rpc CreateIncome(CreateIncomeRequest) returns (CreateIncomeResponse);
+  rpc UpdateIncome(UpdateIncomeRequest) returns (UpdateIncomeResponse);
+  rpc DeleteIncome(DeleteIncomeRequest) returns (DeleteIncomeResponse);
+}

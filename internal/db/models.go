@@ -54,6 +54,21 @@ type Expense struct {
 	UpdatedAt       pgtype.Timestamptz
 }
 
+type Income struct {
+	ID              pgtype.UUID
+	UserID          pgtype.UUID
+	Date            pgtype.Timestamptz
+	Amount          pgtype.Numeric
+	Currency        string
+	ChargedAmount   pgtype.Numeric
+	ChargedCurrency pgtype.Text
+	AccountID       pgtype.UUID
+	CategoryID      pgtype.UUID
+	Description     pgtype.Text
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+}
+
 type Transfer struct {
 	ID                 pgtype.UUID
 	Date               pgtype.Timestamptz

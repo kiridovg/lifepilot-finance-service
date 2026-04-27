@@ -103,3 +103,22 @@ CREATE INDEX idx_transfers_from_account  ON transfers (from_account_id);
 CREATE INDEX idx_transfers_to_account    ON transfers (to_account_id);
 CREATE INDEX idx_transfers_date          ON transfers (date);
 CREATE INDEX idx_transfers_linked        ON transfers (linked_transfer_id);
+
+-- Incomes: money received
+CREATE TABLE incomes (
+    id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id           UUID        NOT NULL REFERENCES users (id),
+    date              TIMESTAMPTZ NOT NULL,
+    amount            DECIMAL(18, 8) NOT NULL,
+    currency          TEXT        NOT NULL,
+    charged_amount    DECIMAL(18, 8),
+    charged_currency  TEXT,
+    account_id        UUID        NOT NULL REFERENCES accounts (id),
+    category_id       UUID        REFERENCES categories (id),
+    description       TEXT,
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_incomes_account_id ON incomes (account_id);
+CREATE INDEX idx_incomes_date       ON incomes (date);
