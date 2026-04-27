@@ -116,6 +116,33 @@ func (q *Queries) GetAccountExpenses(ctx context.Context, arg GetAccountExpenses
 	return total, err
 }
 
+const getAccountIncomes = `-- name: GetAccountIncomes :one
+SELECT COALESCE(SUM(
+    CASE
+        WHEN charged_currency = $2 AND charged_amount IS NOT NULL THEN charged_amount
+        ELSE amount
+    END
+), 0)::numeric AS total
+FROM incomes
+WHERE account_id = $1
+  AND date       >= $3
+  AND (currency = $2 OR charged_currency = $2)
+`
+
+type GetAccountIncomesParams struct {
+	AccountID       pgtype.UUID
+	ChargedCurrency pgtype.Text
+	Date            pgtype.Timestamptz
+}
+
+// Sums incomes for an account since initialDate.
+func (q *Queries) GetAccountIncomes(ctx context.Context, arg GetAccountIncomesParams) (pgtype.Numeric, error) {
+	row := q.db.QueryRow(ctx, getAccountIncomes, arg.AccountID, arg.ChargedCurrency, arg.Date)
+	var total pgtype.Numeric
+	err := row.Scan(&total)
+	return total, err
+}
+
 const getAccountTransfersIn = `-- name: GetAccountTransfersIn :one
 SELECT COALESCE(SUM(to_amount), 0)::numeric AS total
 FROM transfers

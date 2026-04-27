@@ -41,6 +41,19 @@ WHERE account_id   = $1
   AND transfer_id  IS NULL
   AND (currency = $2 OR charged_currency = $2);
 
+-- name: GetAccountIncomes :one
+-- Sums incomes for an account since initialDate.
+SELECT COALESCE(SUM(
+    CASE
+        WHEN charged_currency = $2 AND charged_amount IS NOT NULL THEN charged_amount
+        ELSE amount
+    END
+), 0)::numeric AS total
+FROM incomes
+WHERE account_id = $1
+  AND date       >= $3
+  AND (currency = $2 OR charged_currency = $2);
+
 -- name: GetAccountTransfersOut :one
 SELECT COALESCE(SUM(from_amount), 0)::numeric AS total
 FROM transfers

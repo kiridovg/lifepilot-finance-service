@@ -60,7 +60,7 @@ func (h *AccountHandler) CreateAccount(ctx context.Context, req *connect.Request
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	return connect.NewResponse(&financev1.CreateAccountResponse{
-		Account: accountToProto(r, 0, 0, 0),
+		Account: accountToProto(r, 0, 0, 0, 0),
 	}), nil
 }
 
@@ -118,17 +118,26 @@ func (h *AccountHandler) withBalance(ctx context.Context, q *db.Queries, r db.Ac
 	if err != nil {
 		return nil, err
 	}
+	incTotal, err := q.GetAccountIncomes(ctx, db.GetAccountIncomesParams{
+		AccountID:       r.ID,
+		ChargedCurrency: pgtype.Text{String: r.Currency, Valid: true},
+		Date:            ts,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return accountToProto(r,
 		numericToFloat(expTotal),
 		numericToFloat(outTotal),
 		numericToFloat(inTotal),
+		numericToFloat(incTotal),
 	), nil
 }
 
-func accountToProto(r db.Account, totalExpenses, transfersOut, transfersIn float64) *financev1.Account {
+func accountToProto(r db.Account, totalExpenses, transfersOut, transfersIn, totalIncomes float64) *financev1.Account {
 	initial := numericToFloat(r.InitialBalance)
-	balance := initial - totalExpenses - transfersOut + transfersIn
+	balance := initial - totalExpenses - transfersOut + transfersIn + totalIncomes
 
 	return &financev1.Account{
 		Id:             uuidToString(r.ID),
