@@ -30,7 +30,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := runMigrations(dbURL, log); err != nil {
+	migrationURL := os.Getenv("MIGRATION_DATABASE_URL")
+	if migrationURL == "" {
+		migrationURL = strings.ReplaceAll(dbURL, "-pooler.", ".")
+	}
+
+	if err := runMigrations(migrationURL, log); err != nil {
 		log.Error("migration failed", "err", err)
 		os.Exit(1)
 	}
