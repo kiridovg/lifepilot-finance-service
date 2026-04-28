@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -138,6 +139,44 @@ func TestDeleteExpenseRestoresBalance(t *testing.T) {
 
 	require.NoError(t, q.DeleteExpense(ctx, exp.ID))
 	assert.InDelta(t, 50.0, calcBalance(t, q, acc), 0.0001)
+}
+
+// T08b: Update expense account_id moves the debit to the new account.
+func TestUpdateExpenseChangesAccount(t *testing.T) {
+	q, _ := testutil.NewQueries(t)
+	ctx := context.Background()
+
+	accA := createCashUSD(t, q, "100", "2024-01-01")
+	accB, err := q.CreateAccount(ctx, db.CreateAccountParams{
+		UserID:         accA.UserID,
+		Name:           "Wise USD",
+		Currency:       "USD",
+		InitialBalance: testutil.Numeric(t, "200"),
+		InitialDate:    testutil.Date(t, "2024-01-01"),
+	})
+	require.NoError(t, err)
+
+	exp, err := q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:    accA.UserID,
+		Date:      testutil.Timestamptz(t, "2024-01-10"),
+		Amount:    testutil.Numeric(t, "30"),
+		Currency:  "USD",
+		AccountID: accA.ID,
+	})
+	require.NoError(t, err)
+	assert.InDelta(t, 70.0, calcBalance(t, q, accA), 0.0001)
+	assert.InDelta(t, 200.0, calcBalance(t, q, accB), 0.0001)
+
+	// Move expense from accA to accB
+	_, err = q.UpdateExpense(ctx, db.UpdateExpenseParams{
+		ID:        exp.ID,
+		AccountID: pgtype.UUID{Bytes: accB.ID.Bytes, Valid: true},
+		UserID:    pgtype.UUID{Bytes: accB.UserID.Bytes, Valid: true},
+	})
+	require.NoError(t, err)
+
+	assert.InDelta(t, 100.0, calcBalance(t, q, accA), 0.0001, "accA balance should be restored")
+	assert.InDelta(t, 170.0, calcBalance(t, q, accB), 0.0001, "accB balance should be reduced")
 }
 
 // T08: Update expense changes balance accordingly.
