@@ -118,10 +118,11 @@ CREATE TABLE incomes (
     charged_currency  TEXT,
     account_id        UUID        NOT NULL REFERENCES accounts (id),
     category_id       UUID        REFERENCES categories (id),
-    description       TEXT,
-    is_refund         BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    description          TEXT,
+    is_refund            BOOLEAN     NOT NULL DEFAULT FALSE,
+    refunded_expense_id  UUID        REFERENCES expenses (id) ON DELETE SET NULL,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_incomes_account_id ON incomes (account_id);
