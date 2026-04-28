@@ -23,8 +23,14 @@ func (h *ExpenseHandler) ListExpenses(ctx context.Context, req *connect.Request[
 	var rows []db.Expense
 	var err error
 
-	if req.Msg.UserId != nil {
-		rows, err = h.q.ListExpensesByUser(ctx, uuidFromString(*req.Msg.UserId))
+	m := req.Msg
+	if m.UserId != nil {
+		rows, err = h.q.ListExpensesByUser(ctx, uuidFromString(*m.UserId))
+	} else if m.DateFrom != nil && m.DateTo != nil {
+		rows, err = h.q.ListExpensesByDateRange(ctx, db.ListExpensesByDateRangeParams{
+			Date:   pgtype.Timestamptz{Time: m.DateFrom.AsTime(), Valid: true},
+			Date_2: pgtype.Timestamptz{Time: m.DateTo.AsTime(), Valid: true},
+		})
 	} else {
 		rows, err = h.q.ListExpenses(ctx)
 	}

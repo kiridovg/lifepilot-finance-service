@@ -150,6 +150,51 @@ func (q *Queries) ListExpensesByAccount(ctx context.Context, accountID pgtype.UU
 	return items, nil
 }
 
+const listExpensesByDateRange = `-- name: ListExpensesByDateRange :many
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses
+WHERE date >= $1 AND date < $2
+ORDER BY date DESC
+`
+
+type ListExpensesByDateRangeParams struct {
+	Date   pgtype.Timestamptz
+	Date_2 pgtype.Timestamptz
+}
+
+func (q *Queries) ListExpensesByDateRange(ctx context.Context, arg ListExpensesByDateRangeParams) ([]Expense, error) {
+	rows, err := q.db.Query(ctx, listExpensesByDateRange, arg.Date, arg.Date_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Expense
+	for rows.Next() {
+		var i Expense
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Date,
+			&i.Amount,
+			&i.Currency,
+			&i.ChargedAmount,
+			&i.ChargedCurrency,
+			&i.AccountID,
+			&i.CategoryID,
+			&i.Description,
+			&i.TransferID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listExpensesByUser = `-- name: ListExpensesByUser :many
 SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at FROM expenses WHERE user_id = $1 ORDER BY date DESC
 `

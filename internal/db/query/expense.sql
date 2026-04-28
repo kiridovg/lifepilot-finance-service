@@ -12,6 +12,11 @@ ORDER BY date DESC;
 -- name: ListExpenses :many
 SELECT * FROM expenses ORDER BY date DESC;
 
+-- name: ListExpensesByDateRange :many
+SELECT * FROM expenses
+WHERE date >= $1 AND date < $2
+ORDER BY date DESC;
+
 -- name: ListExpensesByUser :many
 SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC;
 
