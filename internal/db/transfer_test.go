@@ -81,7 +81,7 @@ func TestTransferWithCommissionNoDoubleCount(t *testing.T) {
 	transfer, err := q.CreateTransfer(context.Background(), db.CreateTransferParams{
 		Date:               testutil.Timestamptz(t, "2024-02-01"),
 		FromAccountID:      wise.ID,
-		FromAmount:         testutil.Numeric(t, "18.51"),
+		FromAmount:         testutil.Numeric(t, "18.34"), // net = 18.51 - 0.17
 		FromCurrency:       testutil.NullText("EUR"),
 		ToAccountID:        kaspi.ID,
 		ToAmount:           testutil.Numeric(t, "10000"),
@@ -188,10 +188,10 @@ func TestTransferWithCommission2ATMFee(t *testing.T) {
 	transfer, err := q.CreateTransfer(ctx, db.CreateTransferParams{
 		Date:                testutil.Timestamptz(t, "2024-03-01"),
 		FromAccountID:       wise.ID,
-		FromAmount:          testutil.Numeric(t, "17.32"),
+		FromAmount:          testutil.Numeric(t, "17.16"), // net = 17.32 - 0.16
 		FromCurrency:        testutil.NullText("EUR"),
 		ToAccountID:         cash.ID,
-		ToAmount:            testutil.Numeric(t, "9000"),
+		ToAmount:            testutil.Numeric(t, "9313.27"), // gross dispensed by ATM
 		ToCurrency:          "KZT",
 		Commission:          testutil.Numeric(t, "0.16"),
 		CommissionCurrency:  testutil.NullText("EUR"),
