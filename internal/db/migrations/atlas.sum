@@ -1,4 +1,4 @@
-h1:/lJnnAsHLws3EAaOlepxEZq9bq/LJEUu+vrsmGYu74g=
+h1:E+MEA0goWespFh01DYOUvcQFeqpzhS71EZ22lDA+D3E=
 20260426144833_initial.sql h1:anSp4PU0ypKq67pCnIlUUShiJMF2ErbuQdwMdModHZY=
 20260426145714_seed_data.sql h1:fjojvAW8lQV791MTdRvnYK0GPeVWCuUdIKUHJWm1IOo=
 20260426160406_add_users.sql h1:CG5rkNxN0zYhE6CkwuJ2n3N/PoDHOiu6SAACXAGNH+o=
@@ -6,3 +6,4 @@ h1:/lJnnAsHLws3EAaOlepxEZq9bq/LJEUu+vrsmGYu74g=
 20260426160540_enforce_user_not_null.sql h1:eQ7x3VdcP0QgmGTTJzuUpRr2SOlCf+oLnV+L7eFvugU=
 20260427164554_add_incomes_table.sql h1:yJndjTQ32+MEvNtJwYzxBAUJj3V83NxyliREUeSQuCw=
 20260428081221_add_commission2_to_transfers.sql h1:HucYeAtsUkzW/K9bSUzBA7Ne17cY4gxxJnoXLsYA/v8=
+20260429120000_add_is_refund.sql h1:bVIwpSCFB8ZgGkZKXIzjzmKYKULKRAuC9w733mUuvKs=

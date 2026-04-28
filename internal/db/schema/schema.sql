@@ -94,6 +94,7 @@ CREATE TABLE expenses (
     category_id       UUID        REFERENCES categories (id),
     description       TEXT,
     transfer_id       UUID        REFERENCES transfers (id) ON DELETE CASCADE,
+    is_refund         BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -118,6 +119,7 @@ CREATE TABLE incomes (
     account_id        UUID        NOT NULL REFERENCES accounts (id),
     category_id       UUID        REFERENCES categories (id),
     description       TEXT,
+    is_refund         BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
