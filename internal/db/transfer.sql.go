@@ -152,3 +152,54 @@ func (q *Queries) ListTransfers(ctx context.Context) ([]Transfer, error) {
 	}
 	return items, nil
 }
+
+const listTransfersByAccount = `-- name: ListTransfersByAccount :many
+SELECT id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, commission2, commission2_currency, description, linked_transfer_id, created_at, updated_at FROM transfers
+WHERE (from_account_id = $1 OR to_account_id = $1)
+  AND ($2::timestamptz IS NULL OR date >= $2::timestamptz)
+  AND ($3::timestamptz IS NULL OR date < $3::timestamptz)
+ORDER BY date DESC
+`
+
+type ListTransfersByAccountParams struct {
+	AccountID pgtype.UUID
+	DateFrom  pgtype.Timestamptz
+	DateTo    pgtype.Timestamptz
+}
+
+func (q *Queries) ListTransfersByAccount(ctx context.Context, arg ListTransfersByAccountParams) ([]Transfer, error) {
+	rows, err := q.db.Query(ctx, listTransfersByAccount, arg.AccountID, arg.DateFrom, arg.DateTo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transfer
+	for rows.Next() {
+		var i Transfer
+		if err := rows.Scan(
+			&i.ID,
+			&i.Date,
+			&i.FromAccountID,
+			&i.FromAmount,
+			&i.FromCurrency,
+			&i.ToAccountID,
+			&i.ToAmount,
+			&i.ToCurrency,
+			&i.Commission,
+			&i.CommissionCurrency,
+			&i.Commission2,
+			&i.Commission2Currency,
+			&i.Description,
+			&i.LinkedTransferID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

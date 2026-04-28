@@ -18,6 +18,8 @@ message Income {
   optional string description = 9;
   google.protobuf.Timestamp date = 10;
   google.protobuf.Timestamp created_at = 11;
+  bool is_refund = 12;
+  optional string refunded_expense_id = 13;
 }
 
 message ListIncomesRequest {

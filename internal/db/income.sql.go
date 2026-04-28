@@ -15,7 +15,7 @@ const createIncome = `-- name: CreateIncome :one
 INSERT INTO incomes (user_id, date, amount, currency, charged_amount, charged_currency,
                      account_id, category_id, description)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at
 `
 
 type CreateIncomeParams struct {
@@ -54,6 +54,8 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 		&i.AccountID,
 		&i.CategoryID,
 		&i.Description,
+		&i.IsRefund,
+		&i.RefundedExpenseID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -70,7 +72,7 @@ func (q *Queries) DeleteIncome(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listIncomes = `-- name: ListIncomes :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, created_at, updated_at FROM incomes ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes ORDER BY date DESC
 `
 
 func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
@@ -93,6 +95,57 @@ func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
 			&i.AccountID,
 			&i.CategoryID,
 			&i.Description,
+			&i.IsRefund,
+			&i.RefundedExpenseID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listIncomesByAccount = `-- name: ListIncomesByAccount :many
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes
+WHERE account_id = $1
+  AND ($2::timestamptz IS NULL OR date >= $2::timestamptz)
+  AND ($3::timestamptz IS NULL OR date < $3::timestamptz)
+ORDER BY date DESC
+`
+
+type ListIncomesByAccountParams struct {
+	AccountID pgtype.UUID
+	DateFrom  pgtype.Timestamptz
+	DateTo    pgtype.Timestamptz
+}
+
+func (q *Queries) ListIncomesByAccount(ctx context.Context, arg ListIncomesByAccountParams) ([]Income, error) {
+	rows, err := q.db.Query(ctx, listIncomesByAccount, arg.AccountID, arg.DateFrom, arg.DateTo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Income
+	for rows.Next() {
+		var i Income
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Date,
+			&i.Amount,
+			&i.Currency,
+			&i.ChargedAmount,
+			&i.ChargedCurrency,
+			&i.AccountID,
+			&i.CategoryID,
+			&i.Description,
+			&i.IsRefund,
+			&i.RefundedExpenseID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -107,7 +160,7 @@ func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
 }
 
 const listIncomesByDateRange = `-- name: ListIncomesByDateRange :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, created_at, updated_at FROM incomes
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes
 WHERE date >= $1 AND date < $2
 ORDER BY date DESC
 `
@@ -137,6 +190,8 @@ func (q *Queries) ListIncomesByDateRange(ctx context.Context, arg ListIncomesByD
 			&i.AccountID,
 			&i.CategoryID,
 			&i.Description,
+			&i.IsRefund,
+			&i.RefundedExpenseID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -151,7 +206,7 @@ func (q *Queries) ListIncomesByDateRange(ctx context.Context, arg ListIncomesByD
 }
 
 const listIncomesByUser = `-- name: ListIncomesByUser :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY date DESC
 `
 
 func (q *Queries) ListIncomesByUser(ctx context.Context, userID pgtype.UUID) ([]Income, error) {
@@ -174,6 +229,8 @@ func (q *Queries) ListIncomesByUser(ctx context.Context, userID pgtype.UUID) ([]
 			&i.AccountID,
 			&i.CategoryID,
 			&i.Description,
+			&i.IsRefund,
+			&i.RefundedExpenseID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -198,7 +255,7 @@ SET amount           = COALESCE($1, amount),
     date             = COALESCE($7, date),
     updated_at       = NOW()
 WHERE id = $8
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at
 `
 
 type UpdateIncomeParams struct {
@@ -235,6 +292,8 @@ func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) (Inc
 		&i.AccountID,
 		&i.CategoryID,
 		&i.Description,
+		&i.IsRefund,
+		&i.RefundedExpenseID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -135,6 +135,21 @@ export class Transfer extends Message<Transfer> {
  * @generated from message finance.v1.ListTransfersRequest
  */
 export class ListTransfersRequest extends Message<ListTransfersRequest> {
+  /**
+   * @generated from field: optional string account_id = 1;
+   */
+  accountId?: string;
+
+  /**
+   * @generated from field: optional google.protobuf.Timestamp date_from = 2;
+   */
+  dateFrom?: Timestamp;
+
+  /**
+   * @generated from field: optional google.protobuf.Timestamp date_to = 3;
+   */
+  dateTo?: Timestamp;
+
   constructor(data?: PartialMessage<ListTransfersRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -143,6 +158,9 @@ export class ListTransfersRequest extends Message<ListTransfersRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "finance.v1.ListTransfersRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 2, name: "date_from", kind: "message", T: Timestamp, opt: true },
+    { no: 3, name: "date_to", kind: "message", T: Timestamp, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListTransfersRequest {

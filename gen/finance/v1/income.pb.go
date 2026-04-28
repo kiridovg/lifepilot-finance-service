@@ -23,20 +23,22 @@ const (
 )
 
 type Income struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId          string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AccountId       string                 `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	Amount          string                 `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
-	ChargedAmount   *string                `protobuf:"bytes,6,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
-	ChargedCurrency *string                `protobuf:"bytes,7,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
-	CategoryId      *string                `protobuf:"bytes,8,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	Description     *string                `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Date            *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
-	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId            string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AccountId         string                 `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Amount            string                 `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency          string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	ChargedAmount     *string                `protobuf:"bytes,6,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
+	ChargedCurrency   *string                `protobuf:"bytes,7,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
+	CategoryId        *string                `protobuf:"bytes,8,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	Description       *string                `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Date              *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date,proto3" json:"date,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	IsRefund          bool                   `protobuf:"varint,12,opt,name=is_refund,json=isRefund,proto3" json:"is_refund,omitempty"`
+	RefundedExpenseId *string                `protobuf:"bytes,13,opt,name=refunded_expense_id,json=refundedExpenseId,proto3,oneof" json:"refunded_expense_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *Income) Reset() {
@@ -144,6 +146,20 @@ func (x *Income) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *Income) GetIsRefund() bool {
+	if x != nil {
+		return x.IsRefund
+	}
+	return false
+}
+
+func (x *Income) GetRefundedExpenseId() string {
+	if x != nil && x.RefundedExpenseId != nil {
+		return *x.RefundedExpenseId
+	}
+	return ""
 }
 
 type ListIncomesRequest struct {
@@ -647,7 +663,7 @@ var File_finance_v1_income_proto protoreflect.FileDescriptor
 const file_finance_v1_income_proto_rawDesc = "" +
 	"\n" +
 	"\x17finance/v1/income.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe0\x03\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xca\x04\n" +
 	"\x06Income\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
@@ -663,11 +679,14 @@ const file_finance_v1_income_proto_rawDesc = "" +
 	"\x04date\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
 	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x11\n" +
+	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
+	"\tis_refund\x18\f \x01(\bR\bisRefund\x123\n" +
+	"\x13refunded_expense_id\x18\r \x01(\tH\x04R\x11refundedExpenseId\x88\x01\x01B\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +
-	"\f_description\"\xb9\x02\n" +
+	"\f_descriptionB\x16\n" +
+	"\x14_refunded_expense_id\"\xb9\x02\n" +
 	"\x12ListIncomesRequest\x12\x1c\n" +
 	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01\x12\"\n" +
 	"\n" +

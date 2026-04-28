@@ -7,6 +7,8 @@ RETURNING *;
 -- name: ListExpensesByAccount :many
 SELECT * FROM expenses
 WHERE account_id = $1
+  AND (sqlc.narg(date_from)::timestamptz IS NULL OR date >= sqlc.narg(date_from)::timestamptz)
+  AND (sqlc.narg(date_to)::timestamptz IS NULL OR date < sqlc.narg(date_to)::timestamptz)
 ORDER BY date DESC;
 
 -- name: ListExpenses :many

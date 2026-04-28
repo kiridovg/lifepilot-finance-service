@@ -23,12 +23,19 @@ func (h *IncomeHandler) ListIncomes(ctx context.Context, req *connect.Request[fi
 	var rows []db.Income
 	var err error
 
-	if req.Msg.UserId != nil {
-		rows, err = h.q.ListIncomesByUser(ctx, uuidFromString(*req.Msg.UserId))
-	} else if req.Msg.DateFrom != nil && req.Msg.DateTo != nil {
+	m := req.Msg
+	if m.AccountId != nil {
+		rows, err = h.q.ListIncomesByAccount(ctx, db.ListIncomesByAccountParams{
+			AccountID: uuidFromString(*m.AccountId),
+			DateFrom:  nullTimestamptz(m.DateFrom),
+			DateTo:    nullTimestamptz(m.DateTo),
+		})
+	} else if m.UserId != nil {
+		rows, err = h.q.ListIncomesByUser(ctx, uuidFromString(*m.UserId))
+	} else if m.DateFrom != nil && m.DateTo != nil {
 		rows, err = h.q.ListIncomesByDateRange(ctx, db.ListIncomesByDateRangeParams{
-			Date:   pgtype.Timestamptz{Time: req.Msg.DateFrom.AsTime(), Valid: true},
-			Date_2: pgtype.Timestamptz{Time: req.Msg.DateTo.AsTime(), Valid: true},
+			Date:   pgtype.Timestamptz{Time: m.DateFrom.AsTime(), Valid: true},
+			Date_2: pgtype.Timestamptz{Time: m.DateTo.AsTime(), Valid: true},
 		})
 	} else {
 		rows, err = h.q.ListIncomes(ctx)
@@ -94,16 +101,18 @@ func (h *IncomeHandler) DeleteIncome(ctx context.Context, req *connect.Request[f
 
 func incomeToProto(r db.Income) *financev1.Income {
 	return &financev1.Income{
-		Id:              uuidToString(r.ID),
-		UserId:          uuidToString(r.UserID),
-		AccountId:       uuidToString(r.AccountID),
-		Amount:          numericToString(r.Amount),
-		Currency:        r.Currency,
-		ChargedAmount:   nullNumericToPtr(r.ChargedAmount),
-		ChargedCurrency: nullTextToPtr(r.ChargedCurrency),
-		CategoryId:      nullUUIDToPtr(r.CategoryID),
-		Description:     nullTextToPtr(r.Description),
-		Date:            timestamppb.New(r.Date.Time),
-		CreatedAt:       timestamppb.New(r.CreatedAt.Time),
+		Id:                 uuidToString(r.ID),
+		UserId:             uuidToString(r.UserID),
+		AccountId:          uuidToString(r.AccountID),
+		Amount:             numericToString(r.Amount),
+		Currency:           r.Currency,
+		ChargedAmount:      nullNumericToPtr(r.ChargedAmount),
+		ChargedCurrency:    nullTextToPtr(r.ChargedCurrency),
+		CategoryId:         nullUUIDToPtr(r.CategoryID),
+		Description:        nullTextToPtr(r.Description),
+		IsRefund:           r.IsRefund,
+		RefundedExpenseId:  nullUUIDToPtr(r.RefundedExpenseID),
+		Date:               timestamppb.New(r.Date.Time),
+		CreatedAt:          timestamppb.New(r.CreatedAt.Time),
 	}
 }

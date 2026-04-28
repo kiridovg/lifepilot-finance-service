@@ -24,7 +24,13 @@ func (h *ExpenseHandler) ListExpenses(ctx context.Context, req *connect.Request[
 	var err error
 
 	m := req.Msg
-	if m.UserId != nil {
+	if m.AccountId != nil {
+		rows, err = h.q.ListExpensesByAccount(ctx, db.ListExpensesByAccountParams{
+			AccountID: uuidFromString(*m.AccountId),
+			DateFrom:  nullTimestamptz(m.DateFrom),
+			DateTo:    nullTimestamptz(m.DateTo),
+		})
+	} else if m.UserId != nil {
 		rows, err = h.q.ListExpensesByUser(ctx, uuidFromString(*m.UserId))
 	} else if m.DateFrom != nil && m.DateTo != nil {
 		rows, err = h.q.ListExpensesByDateRange(ctx, db.ListExpensesByDateRangeParams{
@@ -114,6 +120,7 @@ func expenseToProto(r db.Expense) *financev1.Expense {
 		CategoryId:      nullUUIDToPtr(r.CategoryID),
 		Description:     nullTextToPtr(r.Description),
 		TransferId:      nullUUIDToPtr(r.TransferID),
+		IsRefund:        r.IsRefund,
 		Date:            timestamppb.New(r.Date.Time),
 		CreatedAt:       timestamppb.New(r.CreatedAt.Time),
 	}

@@ -22,7 +22,19 @@ func NewTransferHandler(pool *pgxpool.Pool) *TransferHandler {
 }
 
 func (h *TransferHandler) ListTransfers(ctx context.Context, req *connect.Request[financev1.ListTransfersRequest]) (*connect.Response[financev1.ListTransfersResponse], error) {
-	rows, err := db.New(h.pool).ListTransfers(ctx)
+	m := req.Msg
+	q := db.New(h.pool)
+	var rows []db.Transfer
+	var err error
+	if m.AccountId != nil {
+		rows, err = q.ListTransfersByAccount(ctx, db.ListTransfersByAccountParams{
+			AccountID: uuidFromString(*m.AccountId),
+			DateFrom:  nullTimestamptz(m.DateFrom),
+			DateTo:    nullTimestamptz(m.DateTo),
+		})
+	} else {
+		rows, err = q.ListTransfers(ctx)
+	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

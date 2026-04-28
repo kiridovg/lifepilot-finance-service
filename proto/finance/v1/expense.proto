@@ -19,6 +19,7 @@ message Expense {
   optional string transfer_id = 10;
   google.protobuf.Timestamp date = 11;
   google.protobuf.Timestamp created_at = 12;
+  bool is_refund = 13;
 }
 
 message ListExpensesRequest {

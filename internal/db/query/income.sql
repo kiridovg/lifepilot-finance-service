@@ -7,6 +7,13 @@ RETURNING *;
 -- name: ListIncomes :many
 SELECT * FROM incomes ORDER BY date DESC;
 
+-- name: ListIncomesByAccount :many
+SELECT * FROM incomes
+WHERE account_id = sqlc.arg(account_id)
+  AND (sqlc.narg(date_from)::timestamptz IS NULL OR date >= sqlc.narg(date_from)::timestamptz)
+  AND (sqlc.narg(date_to)::timestamptz IS NULL OR date < sqlc.narg(date_to)::timestamptz)
+ORDER BY date DESC;
+
 -- name: ListIncomesByUser :many
 SELECT * FROM incomes WHERE user_id = $1 ORDER BY date DESC;
 

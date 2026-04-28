@@ -36,6 +36,7 @@ type Expense struct {
 	TransferId      *string                `protobuf:"bytes,10,opt,name=transfer_id,json=transferId,proto3,oneof" json:"transfer_id,omitempty"`
 	Date            *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
 	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	IsRefund        bool                   `protobuf:"varint,13,opt,name=is_refund,json=isRefund,proto3" json:"is_refund,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -152,6 +153,13 @@ func (x *Expense) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *Expense) GetIsRefund() bool {
+	if x != nil {
+		return x.IsRefund
+	}
+	return false
 }
 
 type ListExpensesRequest struct {
@@ -663,7 +671,7 @@ var File_finance_v1_expense_proto protoreflect.FileDescriptor
 const file_finance_v1_expense_proto_rawDesc = "" +
 	"\n" +
 	"\x18finance/v1/expense.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x04\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x04\n" +
 	"\aExpense\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
@@ -681,7 +689,8 @@ const file_finance_v1_expense_proto_rawDesc = "" +
 	"transferId\x88\x01\x01\x12.\n" +
 	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x11\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
+	"\tis_refund\x18\r \x01(\bR\bisRefundB\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +

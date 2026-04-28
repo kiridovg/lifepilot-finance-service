@@ -182,6 +182,9 @@ func (x *Transfer) GetCommission2Currency() string {
 
 type ListTransfersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccountId     *string                `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
+	DateFrom      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom,proto3,oneof" json:"date_from,omitempty"`
+	DateTo        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo,proto3,oneof" json:"date_to,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,6 +217,27 @@ func (x *ListTransfersRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListTransfersRequest.ProtoReflect.Descriptor instead.
 func (*ListTransfersRequest) Descriptor() ([]byte, []int) {
 	return file_finance_v1_transfer_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListTransfersRequest) GetAccountId() string {
+	if x != nil && x.AccountId != nil {
+		return *x.AccountId
+	}
+	return ""
+}
+
+func (x *ListTransfersRequest) GetDateFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DateFrom
+	}
+	return nil
+}
+
+func (x *ListTransfersRequest) GetDateTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DateTo
+	}
+	return nil
 }
 
 type ListTransfersResponse struct {
@@ -561,8 +585,17 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\f_descriptionB\x15\n" +
 	"\x13_linked_transfer_idB\x0e\n" +
 	"\f_commission2B\x17\n" +
-	"\x15_commission2_currency\"\x16\n" +
-	"\x14ListTransfersRequest\"K\n" +
+	"\x15_commission2_currency\"\xdb\x01\n" +
+	"\x14ListTransfersRequest\x12\"\n" +
+	"\n" +
+	"account_id\x18\x01 \x01(\tH\x00R\taccountId\x88\x01\x01\x12<\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\bdateFrom\x88\x01\x01\x128\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x06dateTo\x88\x01\x01B\r\n" +
+	"\v_account_idB\f\n" +
+	"\n" +
+	"_date_fromB\n" +
+	"\n" +
+	"\b_date_to\"K\n" +
 	"\x15ListTransfersResponse\x122\n" +
 	"\ttransfers\x18\x01 \x03(\v2\x14.finance.v1.TransferR\ttransfers\"\xfe\x05\n" +
 	"\x15CreateTransferRequest\x12+\n" +
@@ -628,22 +661,24 @@ var file_finance_v1_transfer_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
 }
 var file_finance_v1_transfer_proto_depIdxs = []int32{
-	7, // 0: finance.v1.Transfer.date:type_name -> google.protobuf.Timestamp
-	7, // 1: finance.v1.Transfer.created_at:type_name -> google.protobuf.Timestamp
-	0, // 2: finance.v1.ListTransfersResponse.transfers:type_name -> finance.v1.Transfer
-	7, // 3: finance.v1.CreateTransferRequest.date:type_name -> google.protobuf.Timestamp
-	0, // 4: finance.v1.CreateTransferResponse.transfer:type_name -> finance.v1.Transfer
-	1, // 5: finance.v1.TransferService.ListTransfers:input_type -> finance.v1.ListTransfersRequest
-	3, // 6: finance.v1.TransferService.CreateTransfer:input_type -> finance.v1.CreateTransferRequest
-	5, // 7: finance.v1.TransferService.DeleteTransfer:input_type -> finance.v1.DeleteTransferRequest
-	2, // 8: finance.v1.TransferService.ListTransfers:output_type -> finance.v1.ListTransfersResponse
-	4, // 9: finance.v1.TransferService.CreateTransfer:output_type -> finance.v1.CreateTransferResponse
-	6, // 10: finance.v1.TransferService.DeleteTransfer:output_type -> finance.v1.DeleteTransferResponse
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7,  // 0: finance.v1.Transfer.date:type_name -> google.protobuf.Timestamp
+	7,  // 1: finance.v1.Transfer.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 2: finance.v1.ListTransfersRequest.date_from:type_name -> google.protobuf.Timestamp
+	7,  // 3: finance.v1.ListTransfersRequest.date_to:type_name -> google.protobuf.Timestamp
+	0,  // 4: finance.v1.ListTransfersResponse.transfers:type_name -> finance.v1.Transfer
+	7,  // 5: finance.v1.CreateTransferRequest.date:type_name -> google.protobuf.Timestamp
+	0,  // 6: finance.v1.CreateTransferResponse.transfer:type_name -> finance.v1.Transfer
+	1,  // 7: finance.v1.TransferService.ListTransfers:input_type -> finance.v1.ListTransfersRequest
+	3,  // 8: finance.v1.TransferService.CreateTransfer:input_type -> finance.v1.CreateTransferRequest
+	5,  // 9: finance.v1.TransferService.DeleteTransfer:input_type -> finance.v1.DeleteTransferRequest
+	2,  // 10: finance.v1.TransferService.ListTransfers:output_type -> finance.v1.ListTransfersResponse
+	4,  // 11: finance.v1.TransferService.CreateTransfer:output_type -> finance.v1.CreateTransferResponse
+	6,  // 12: finance.v1.TransferService.DeleteTransfer:output_type -> finance.v1.DeleteTransferResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_finance_v1_transfer_proto_init() }
@@ -652,6 +687,7 @@ func file_finance_v1_transfer_proto_init() {
 		return
 	}
 	file_finance_v1_transfer_proto_msgTypes[0].OneofWrappers = []any{}
+	file_finance_v1_transfer_proto_msgTypes[1].OneofWrappers = []any{}
 	file_finance_v1_transfer_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

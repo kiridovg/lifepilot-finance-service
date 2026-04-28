@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // --- numeric ---
@@ -123,6 +124,15 @@ func nullUUIDToPtr(u pgtype.UUID) *string {
 	}
 	s := uuidToString(u)
 	return &s
+}
+
+// --- timestamp ---
+
+func nullTimestamptz(ts *timestamppb.Timestamp) pgtype.Timestamptz {
+	if ts == nil {
+		return pgtype.Timestamptz{}
+	}
+	return pgtype.Timestamptz{Time: ts.AsTime(), Valid: true}
 }
 
 // --- date ---

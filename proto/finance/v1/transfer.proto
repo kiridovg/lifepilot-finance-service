@@ -26,7 +26,11 @@ message Transfer {
   optional string commission2_currency = 15;
 }
 
-message ListTransfersRequest {}
+message ListTransfersRequest {
+  optional string account_id = 1;
+  optional google.protobuf.Timestamp date_from = 2;
+  optional google.protobuf.Timestamp date_to = 3;
+}
 message ListTransfersResponse { repeated Transfer transfers = 1; }
 
 message CreateTransferRequest {

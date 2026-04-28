@@ -70,6 +70,11 @@ export class Expense extends Message<Expense> {
    */
   createdAt?: Timestamp;
 
+  /**
+   * @generated from field: bool is_refund = 13;
+   */
+  isRefund = false;
+
   constructor(data?: PartialMessage<Expense>) {
     super();
     proto3.util.initPartial(data, this);
@@ -90,6 +95,7 @@ export class Expense extends Message<Expense> {
     { no: 10, name: "transfer_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 11, name: "date", kind: "message", T: Timestamp },
     { no: 12, name: "created_at", kind: "message", T: Timestamp },
+    { no: 13, name: "is_refund", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Expense {

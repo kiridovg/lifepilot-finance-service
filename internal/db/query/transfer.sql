@@ -10,6 +10,13 @@ RETURNING *;
 -- name: ListTransfers :many
 SELECT * FROM transfers ORDER BY date DESC;
 
+-- name: ListTransfersByAccount :many
+SELECT * FROM transfers
+WHERE (from_account_id = sqlc.arg(account_id) OR to_account_id = sqlc.arg(account_id))
+  AND (sqlc.narg(date_from)::timestamptz IS NULL OR date >= sqlc.narg(date_from)::timestamptz)
+  AND (sqlc.narg(date_to)::timestamptz IS NULL OR date < sqlc.narg(date_to)::timestamptz)
+ORDER BY date DESC;
+
 -- name: GetTransfer :one
 SELECT * FROM transfers WHERE id = $1;
 
