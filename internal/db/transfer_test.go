@@ -174,6 +174,62 @@ func TestDeleteTransferCascadesCommission(t *testing.T) {
 	assert.InDelta(t, 100.0, calcBalance(t, q, from), 0.0001)
 }
 
+// T16: ATM withdrawal with two commissions — EUR fee from from_account, KZT fee from to_account.
+// Wise EUR → Cash KZT: debited 17.32 EUR (incl. 0.16 EUR conversion fee),
+// received 9000 KZT cash, ATM charged 313.27 KZT from dispensed cash.
+// Commission2 expense linked to transfer → excluded from GetAccountExpenses.
+func TestTransferWithCommission2ATMFee(t *testing.T) {
+	q, _ := testutil.NewQueries(t)
+	ctx := context.Background()
+
+	wise := createAccount(t, q, "Wise EUR", "EUR", "100", "2024-01-01")
+	cash := createAccount(t, q, "Cash KZT", "KZT", "0", "2024-01-01")
+
+	transfer, err := q.CreateTransfer(ctx, db.CreateTransferParams{
+		Date:                testutil.Timestamptz(t, "2024-03-01"),
+		FromAccountID:       wise.ID,
+		FromAmount:          testutil.Numeric(t, "17.32"),
+		FromCurrency:        testutil.NullText("EUR"),
+		ToAccountID:         cash.ID,
+		ToAmount:            testutil.Numeric(t, "9000"),
+		ToCurrency:          "KZT",
+		Commission:          testutil.Numeric(t, "0.16"),
+		CommissionCurrency:  testutil.NullText("EUR"),
+		Commission2:         testutil.Numeric(t, "313.27"),
+		Commission2Currency: testutil.NullText("KZT"),
+	})
+	require.NoError(t, err)
+
+	// Commission1 expense (EUR, from wise)
+	_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     wise.UserID,
+		Date:       testutil.Timestamptz(t, "2024-03-01"),
+		Amount:     testutil.Numeric(t, "0.16"),
+		Currency:   "EUR",
+		AccountID:  wise.ID,
+		CategoryID: testutil.SystemCategoryID("bank-fees"),
+		TransferID: transfer.ID,
+	})
+	require.NoError(t, err)
+
+	// Commission2 expense (KZT, from cash — ATM fee)
+	_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+		UserID:     cash.UserID,
+		Date:       testutil.Timestamptz(t, "2024-03-01"),
+		Amount:     testutil.Numeric(t, "313.27"),
+		Currency:   "KZT",
+		AccountID:  cash.ID,
+		CategoryID: testutil.SystemCategoryID("bank-fees"),
+		TransferID: transfer.ID,
+	})
+	require.NoError(t, err)
+
+	// wise: 100 - 17.32 = 82.68 (commission1 excluded — already in fromAmount)
+	assert.InDelta(t, 82.68, calcBalance(t, q, wise), 0.0001)
+	// cash: 0 + 9313.27 (transfersIn) - 313.27 (commission2, excluded from GetAccountExpenses) = 9000
+	assert.InDelta(t, 9000.0, calcBalance(t, q, cash), 0.0001)
+}
+
 // T14ext: Incoming external transfer (income/deposit return) — from_account_id NULL.
 func TestExternalIncomingTransfer(t *testing.T) {
 	q, _ := testutil.NewQueries(t)
