@@ -70,13 +70,14 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 				return err
 			}
 			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
-				UserID:     fromAcc.UserID,
-				Date:       pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
-				Amount:     numericFromString(*m.Commission),
-				Currency:   strDeref(m.CommissionCurrency),
-				AccountID:  uuidFromString(*m.FromAccountId),
-				CategoryID: systemCategoryUUID("bank-fees"),
-				TransferID: r.ID,
+				UserID:      fromAcc.UserID,
+				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+				Amount:      numericFromString(*m.Commission),
+				Currency:    strDeref(m.CommissionCurrency),
+				AccountID:   uuidFromString(*m.FromAccountId),
+				CategoryID:  systemCategoryUUID("bank-fees"),
+				TransferID:  r.ID,
+				Description: commissionDesc(m.Description),
 			})
 			if err != nil {
 				return err
@@ -90,13 +91,14 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 				return err
 			}
 			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
-				UserID:     toAcc.UserID,
-				Date:       pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
-				Amount:     numericFromString(*m.Commission2),
-				Currency:   strDeref(m.Commission2Currency),
-				AccountID:  uuidFromString(*m.ToAccountId),
-				CategoryID: systemCategoryUUID("bank-fees"),
-				TransferID: r.ID,
+				UserID:      toAcc.UserID,
+				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+				Amount:      numericFromString(*m.Commission2),
+				Currency:    strDeref(m.Commission2Currency),
+				AccountID:   uuidFromString(*m.ToAccountId),
+				CategoryID:  systemCategoryUUID("bank-fees"),
+				TransferID:  r.ID,
+				Description: commissionDesc(m.Description),
 			})
 			if err != nil {
 				return err

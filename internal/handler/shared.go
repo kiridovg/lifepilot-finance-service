@@ -103,6 +103,13 @@ func nullNumericSubtract(a, b *string) pgtype.Numeric {
 	return numericFromString(s)
 }
 
+func commissionDesc(transferDesc *string) pgtype.Text {
+	if transferDesc != nil && *transferDesc != "" {
+		return pgtype.Text{String: "Комиссия · " + *transferDesc, Valid: true}
+	}
+	return pgtype.Text{String: "Комиссия", Valid: true}
+}
+
 func nullUUIDFromPtr(s *string) pgtype.UUID {
 	if s == nil {
 		return pgtype.UUID{}
