@@ -14,23 +14,27 @@ import (
 const createTransfer = `-- name: CreateTransfer :one
 INSERT INTO transfers (date, from_account_id, from_amount, from_currency,
                        to_account_id, to_amount, to_currency,
-                       commission, commission_currency, description, linked_transfer_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, description, linked_transfer_id, created_at, updated_at
+                       commission, commission_currency,
+                       commission2, commission2_currency,
+                       description, linked_transfer_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+RETURNING id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, commission2, commission2_currency, description, linked_transfer_id, created_at, updated_at
 `
 
 type CreateTransferParams struct {
-	Date               pgtype.Timestamptz
-	FromAccountID      pgtype.UUID
-	FromAmount         pgtype.Numeric
-	FromCurrency       pgtype.Text
-	ToAccountID        pgtype.UUID
-	ToAmount           pgtype.Numeric
-	ToCurrency         string
-	Commission         pgtype.Numeric
-	CommissionCurrency pgtype.Text
-	Description        pgtype.Text
-	LinkedTransferID   pgtype.UUID
+	Date                pgtype.Timestamptz
+	FromAccountID       pgtype.UUID
+	FromAmount          pgtype.Numeric
+	FromCurrency        pgtype.Text
+	ToAccountID         pgtype.UUID
+	ToAmount            pgtype.Numeric
+	ToCurrency          string
+	Commission          pgtype.Numeric
+	CommissionCurrency  pgtype.Text
+	Commission2         pgtype.Numeric
+	Commission2Currency pgtype.Text
+	Description         pgtype.Text
+	LinkedTransferID    pgtype.UUID
 }
 
 func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error) {
@@ -44,6 +48,8 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) 
 		arg.ToCurrency,
 		arg.Commission,
 		arg.CommissionCurrency,
+		arg.Commission2,
+		arg.Commission2Currency,
 		arg.Description,
 		arg.LinkedTransferID,
 	)
@@ -59,6 +65,8 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg CreateTransferParams) 
 		&i.ToCurrency,
 		&i.Commission,
 		&i.CommissionCurrency,
+		&i.Commission2,
+		&i.Commission2Currency,
 		&i.Description,
 		&i.LinkedTransferID,
 		&i.CreatedAt,
@@ -77,7 +85,7 @@ func (q *Queries) DeleteTransfer(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getTransfer = `-- name: GetTransfer :one
-SELECT id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, description, linked_transfer_id, created_at, updated_at FROM transfers WHERE id = $1
+SELECT id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, commission2, commission2_currency, description, linked_transfer_id, created_at, updated_at FROM transfers WHERE id = $1
 `
 
 func (q *Queries) GetTransfer(ctx context.Context, id pgtype.UUID) (Transfer, error) {
@@ -94,6 +102,8 @@ func (q *Queries) GetTransfer(ctx context.Context, id pgtype.UUID) (Transfer, er
 		&i.ToCurrency,
 		&i.Commission,
 		&i.CommissionCurrency,
+		&i.Commission2,
+		&i.Commission2Currency,
 		&i.Description,
 		&i.LinkedTransferID,
 		&i.CreatedAt,
@@ -103,7 +113,7 @@ func (q *Queries) GetTransfer(ctx context.Context, id pgtype.UUID) (Transfer, er
 }
 
 const listTransfers = `-- name: ListTransfers :many
-SELECT id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, description, linked_transfer_id, created_at, updated_at FROM transfers ORDER BY date DESC
+SELECT id, date, from_account_id, from_amount, from_currency, to_account_id, to_amount, to_currency, commission, commission_currency, commission2, commission2_currency, description, linked_transfer_id, created_at, updated_at FROM transfers ORDER BY date DESC
 `
 
 func (q *Queries) ListTransfers(ctx context.Context) ([]Transfer, error) {
@@ -126,6 +136,8 @@ func (q *Queries) ListTransfers(ctx context.Context) ([]Transfer, error) {
 			&i.ToCurrency,
 			&i.Commission,
 			&i.CommissionCurrency,
+			&i.Commission2,
+			&i.Commission2Currency,
 			&i.Description,
 			&i.LinkedTransferID,
 			&i.CreatedAt,

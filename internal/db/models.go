@@ -70,20 +70,22 @@ type Income struct {
 }
 
 type Transfer struct {
-	ID                 pgtype.UUID
-	Date               pgtype.Timestamptz
-	FromAccountID      pgtype.UUID
-	FromAmount         pgtype.Numeric
-	FromCurrency       pgtype.Text
-	ToAccountID        pgtype.UUID
-	ToAmount           pgtype.Numeric
-	ToCurrency         string
-	Commission         pgtype.Numeric
-	CommissionCurrency pgtype.Text
-	Description        pgtype.Text
-	LinkedTransferID   pgtype.UUID
-	CreatedAt          pgtype.Timestamptz
-	UpdatedAt          pgtype.Timestamptz
+	ID                  pgtype.UUID
+	Date                pgtype.Timestamptz
+	FromAccountID       pgtype.UUID
+	FromAmount          pgtype.Numeric
+	FromCurrency        pgtype.Text
+	ToAccountID         pgtype.UUID
+	ToAmount            pgtype.Numeric
+	ToCurrency          string
+	Commission          pgtype.Numeric
+	CommissionCurrency  pgtype.Text
+	Commission2         pgtype.Numeric
+	Commission2Currency pgtype.Text
+	Description         pgtype.Text
+	LinkedTransferID    pgtype.UUID
+	CreatedAt           pgtype.Timestamptz
+	UpdatedAt           pgtype.Timestamptz
 }
 
 type User struct {

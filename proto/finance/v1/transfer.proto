@@ -22,6 +22,8 @@ message Transfer {
   optional string linked_transfer_id = 11;
   google.protobuf.Timestamp date = 12;
   google.protobuf.Timestamp created_at = 13;
+  optional string commission2 = 14;
+  optional string commission2_currency = 15;
 }
 
 message ListTransfersRequest {}
@@ -39,6 +41,8 @@ message CreateTransferRequest {
   optional string description = 9;
   optional string linked_transfer_id = 10;
   google.protobuf.Timestamp date = 11;
+  optional string commission2 = 12;
+  optional string commission2_currency = 13;
 }
 message CreateTransferResponse { Transfer transfer = 1; }
 

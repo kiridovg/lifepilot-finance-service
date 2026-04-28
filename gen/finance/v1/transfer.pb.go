@@ -30,17 +30,19 @@ type Transfer struct {
 	FromAmount    *string `protobuf:"bytes,3,opt,name=from_amount,json=fromAmount,proto3,oneof" json:"from_amount,omitempty"`
 	FromCurrency  *string `protobuf:"bytes,4,opt,name=from_currency,json=fromCurrency,proto3,oneof" json:"from_currency,omitempty"`
 	// NULL = external recipient (outgoing transfer, deposit sent)
-	ToAccountId        *string                `protobuf:"bytes,5,opt,name=to_account_id,json=toAccountId,proto3,oneof" json:"to_account_id,omitempty"`
-	ToAmount           string                 `protobuf:"bytes,6,opt,name=to_amount,json=toAmount,proto3" json:"to_amount,omitempty"`
-	ToCurrency         string                 `protobuf:"bytes,7,opt,name=to_currency,json=toCurrency,proto3" json:"to_currency,omitempty"`
-	Commission         *string                `protobuf:"bytes,8,opt,name=commission,proto3,oneof" json:"commission,omitempty"`
-	CommissionCurrency *string                `protobuf:"bytes,9,opt,name=commission_currency,json=commissionCurrency,proto3,oneof" json:"commission_currency,omitempty"`
-	Description        *string                `protobuf:"bytes,10,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	LinkedTransferId   *string                `protobuf:"bytes,11,opt,name=linked_transfer_id,json=linkedTransferId,proto3,oneof" json:"linked_transfer_id,omitempty"`
-	Date               *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date,proto3" json:"date,omitempty"`
-	CreatedAt          *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	ToAccountId         *string                `protobuf:"bytes,5,opt,name=to_account_id,json=toAccountId,proto3,oneof" json:"to_account_id,omitempty"`
+	ToAmount            string                 `protobuf:"bytes,6,opt,name=to_amount,json=toAmount,proto3" json:"to_amount,omitempty"`
+	ToCurrency          string                 `protobuf:"bytes,7,opt,name=to_currency,json=toCurrency,proto3" json:"to_currency,omitempty"`
+	Commission          *string                `protobuf:"bytes,8,opt,name=commission,proto3,oneof" json:"commission,omitempty"`
+	CommissionCurrency  *string                `protobuf:"bytes,9,opt,name=commission_currency,json=commissionCurrency,proto3,oneof" json:"commission_currency,omitempty"`
+	Description         *string                `protobuf:"bytes,10,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	LinkedTransferId    *string                `protobuf:"bytes,11,opt,name=linked_transfer_id,json=linkedTransferId,proto3,oneof" json:"linked_transfer_id,omitempty"`
+	Date                *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date,proto3" json:"date,omitempty"`
+	CreatedAt           *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Commission2         *string                `protobuf:"bytes,14,opt,name=commission2,proto3,oneof" json:"commission2,omitempty"`
+	Commission2Currency *string                `protobuf:"bytes,15,opt,name=commission2_currency,json=commission2Currency,proto3,oneof" json:"commission2_currency,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Transfer) Reset() {
@@ -164,6 +166,20 @@ func (x *Transfer) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Transfer) GetCommission2() string {
+	if x != nil && x.Commission2 != nil {
+		return *x.Commission2
+	}
+	return ""
+}
+
+func (x *Transfer) GetCommission2Currency() string {
+	if x != nil && x.Commission2Currency != nil {
+		return *x.Commission2Currency
+	}
+	return ""
+}
+
 type ListTransfersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -245,20 +261,22 @@ func (x *ListTransfersResponse) GetTransfers() []*Transfer {
 }
 
 type CreateTransferRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	FromAccountId      *string                `protobuf:"bytes,1,opt,name=from_account_id,json=fromAccountId,proto3,oneof" json:"from_account_id,omitempty"`
-	FromAmount         *string                `protobuf:"bytes,2,opt,name=from_amount,json=fromAmount,proto3,oneof" json:"from_amount,omitempty"`
-	FromCurrency       *string                `protobuf:"bytes,3,opt,name=from_currency,json=fromCurrency,proto3,oneof" json:"from_currency,omitempty"`
-	ToAccountId        *string                `protobuf:"bytes,4,opt,name=to_account_id,json=toAccountId,proto3,oneof" json:"to_account_id,omitempty"`
-	ToAmount           string                 `protobuf:"bytes,5,opt,name=to_amount,json=toAmount,proto3" json:"to_amount,omitempty"`
-	ToCurrency         string                 `protobuf:"bytes,6,opt,name=to_currency,json=toCurrency,proto3" json:"to_currency,omitempty"`
-	Commission         *string                `protobuf:"bytes,7,opt,name=commission,proto3,oneof" json:"commission,omitempty"`
-	CommissionCurrency *string                `protobuf:"bytes,8,opt,name=commission_currency,json=commissionCurrency,proto3,oneof" json:"commission_currency,omitempty"`
-	Description        *string                `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	LinkedTransferId   *string                `protobuf:"bytes,10,opt,name=linked_transfer_id,json=linkedTransferId,proto3,oneof" json:"linked_transfer_id,omitempty"`
-	Date               *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	FromAccountId       *string                `protobuf:"bytes,1,opt,name=from_account_id,json=fromAccountId,proto3,oneof" json:"from_account_id,omitempty"`
+	FromAmount          *string                `protobuf:"bytes,2,opt,name=from_amount,json=fromAmount,proto3,oneof" json:"from_amount,omitempty"`
+	FromCurrency        *string                `protobuf:"bytes,3,opt,name=from_currency,json=fromCurrency,proto3,oneof" json:"from_currency,omitempty"`
+	ToAccountId         *string                `protobuf:"bytes,4,opt,name=to_account_id,json=toAccountId,proto3,oneof" json:"to_account_id,omitempty"`
+	ToAmount            string                 `protobuf:"bytes,5,opt,name=to_amount,json=toAmount,proto3" json:"to_amount,omitempty"`
+	ToCurrency          string                 `protobuf:"bytes,6,opt,name=to_currency,json=toCurrency,proto3" json:"to_currency,omitempty"`
+	Commission          *string                `protobuf:"bytes,7,opt,name=commission,proto3,oneof" json:"commission,omitempty"`
+	CommissionCurrency  *string                `protobuf:"bytes,8,opt,name=commission_currency,json=commissionCurrency,proto3,oneof" json:"commission_currency,omitempty"`
+	Description         *string                `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	LinkedTransferId    *string                `protobuf:"bytes,10,opt,name=linked_transfer_id,json=linkedTransferId,proto3,oneof" json:"linked_transfer_id,omitempty"`
+	Date                *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
+	Commission2         *string                `protobuf:"bytes,12,opt,name=commission2,proto3,oneof" json:"commission2,omitempty"`
+	Commission2Currency *string                `protobuf:"bytes,13,opt,name=commission2_currency,json=commission2Currency,proto3,oneof" json:"commission2_currency,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *CreateTransferRequest) Reset() {
@@ -366,6 +384,20 @@ func (x *CreateTransferRequest) GetDate() *timestamppb.Timestamp {
 		return x.Date
 	}
 	return nil
+}
+
+func (x *CreateTransferRequest) GetCommission2() string {
+	if x != nil && x.Commission2 != nil {
+		return *x.Commission2
+	}
+	return ""
+}
+
+func (x *CreateTransferRequest) GetCommission2Currency() string {
+	if x != nil && x.Commission2Currency != nil {
+		return *x.Commission2Currency
+	}
+	return ""
 }
 
 type CreateTransferResponse struct {
@@ -497,7 +529,7 @@ var File_finance_v1_transfer_proto protoreflect.FileDescriptor
 const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\n" +
 	"\x19finance/v1/transfer.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x05\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x06\n" +
 	"\bTransfer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
 	"\x0ffrom_account_id\x18\x02 \x01(\tH\x00R\rfromAccountId\x88\x01\x01\x12$\n" +
@@ -517,7 +549,9 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\x12linked_transfer_id\x18\v \x01(\tH\aR\x10linkedTransferId\x88\x01\x01\x12.\n" +
 	"\x04date\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
 	"\n" +
-	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x12\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12%\n" +
+	"\vcommission2\x18\x0e \x01(\tH\bR\vcommission2\x88\x01\x01\x126\n" +
+	"\x14commission2_currency\x18\x0f \x01(\tH\tR\x13commission2Currency\x88\x01\x01B\x12\n" +
 	"\x10_from_account_idB\x0e\n" +
 	"\f_from_amountB\x10\n" +
 	"\x0e_from_currencyB\x10\n" +
@@ -525,10 +559,12 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\v_commissionB\x16\n" +
 	"\x14_commission_currencyB\x0e\n" +
 	"\f_descriptionB\x15\n" +
-	"\x13_linked_transfer_id\"\x16\n" +
+	"\x13_linked_transfer_idB\x0e\n" +
+	"\f_commission2B\x17\n" +
+	"\x15_commission2_currency\"\x16\n" +
 	"\x14ListTransfersRequest\"K\n" +
 	"\x15ListTransfersResponse\x122\n" +
-	"\ttransfers\x18\x01 \x03(\v2\x14.finance.v1.TransferR\ttransfers\"\xf6\x04\n" +
+	"\ttransfers\x18\x01 \x03(\v2\x14.finance.v1.TransferR\ttransfers\"\xfe\x05\n" +
 	"\x15CreateTransferRequest\x12+\n" +
 	"\x0ffrom_account_id\x18\x01 \x01(\tH\x00R\rfromAccountId\x88\x01\x01\x12$\n" +
 	"\vfrom_amount\x18\x02 \x01(\tH\x01R\n" +
@@ -545,7 +581,9 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\vdescription\x18\t \x01(\tH\x06R\vdescription\x88\x01\x01\x121\n" +
 	"\x12linked_transfer_id\x18\n" +
 	" \x01(\tH\aR\x10linkedTransferId\x88\x01\x01\x12.\n" +
-	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x12\n" +
+	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12%\n" +
+	"\vcommission2\x18\f \x01(\tH\bR\vcommission2\x88\x01\x01\x126\n" +
+	"\x14commission2_currency\x18\r \x01(\tH\tR\x13commission2Currency\x88\x01\x01B\x12\n" +
 	"\x10_from_account_idB\x0e\n" +
 	"\f_from_amountB\x10\n" +
 	"\x0e_from_currencyB\x10\n" +
@@ -553,7 +591,9 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\v_commissionB\x16\n" +
 	"\x14_commission_currencyB\x0e\n" +
 	"\f_descriptionB\x15\n" +
-	"\x13_linked_transfer_id\"J\n" +
+	"\x13_linked_transfer_idB\x0e\n" +
+	"\f_commission2B\x17\n" +
+	"\x15_commission2_currency\"J\n" +
 	"\x16CreateTransferResponse\x120\n" +
 	"\btransfer\x18\x01 \x01(\v2\x14.finance.v1.TransferR\btransfer\"'\n" +
 	"\x15DeleteTransferRequest\x12\x0e\n" +

@@ -79,6 +79,16 @@ export class Transfer extends Message<Transfer> {
    */
   createdAt?: Timestamp;
 
+  /**
+   * @generated from field: optional string commission2 = 14;
+   */
+  commission2?: string;
+
+  /**
+   * @generated from field: optional string commission2_currency = 15;
+   */
+  commission2Currency?: string;
+
   constructor(data?: PartialMessage<Transfer>) {
     super();
     proto3.util.initPartial(data, this);
@@ -100,6 +110,8 @@ export class Transfer extends Message<Transfer> {
     { no: 11, name: "linked_transfer_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 12, name: "date", kind: "message", T: Timestamp },
     { no: 13, name: "created_at", kind: "message", T: Timestamp },
+    { no: 14, name: "commission2", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 15, name: "commission2_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Transfer {
@@ -246,6 +258,16 @@ export class CreateTransferRequest extends Message<CreateTransferRequest> {
    */
   date?: Timestamp;
 
+  /**
+   * @generated from field: optional string commission2 = 12;
+   */
+  commission2?: string;
+
+  /**
+   * @generated from field: optional string commission2_currency = 13;
+   */
+  commission2Currency?: string;
+
   constructor(data?: PartialMessage<CreateTransferRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -265,6 +287,8 @@ export class CreateTransferRequest extends Message<CreateTransferRequest> {
     { no: 9, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 10, name: "linked_transfer_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 11, name: "date", kind: "message", T: Timestamp },
+    { no: 12, name: "commission2", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 13, name: "commission2_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateTransferRequest {
