@@ -373,6 +373,11 @@ export class UpdateExpenseRequest extends Message<UpdateExpenseRequest> {
    */
   date?: Timestamp;
 
+  /**
+   * @generated from field: optional string account_id = 9;
+   */
+  accountId?: string;
+
   constructor(data?: PartialMessage<UpdateExpenseRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -389,6 +394,7 @@ export class UpdateExpenseRequest extends Message<UpdateExpenseRequest> {
     { no: 6, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 7, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 8, name: "date", kind: "message", T: Timestamp, opt: true },
+    { no: 9, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateExpenseRequest {

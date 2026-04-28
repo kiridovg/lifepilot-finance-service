@@ -52,6 +52,7 @@ message UpdateExpenseRequest {
   optional string category_id = 6;
   optional string description = 7;
   optional google.protobuf.Timestamp date = 8;
+  optional string account_id = 9;
 }
 message UpdateExpenseResponse { Expense expense = 1; }
 

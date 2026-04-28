@@ -436,6 +436,7 @@ type UpdateExpenseRequest struct {
 	CategoryId      *string                `protobuf:"bytes,6,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
 	Description     *string                `protobuf:"bytes,7,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	Date            *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date,proto3,oneof" json:"date,omitempty"`
+	AccountId       *string                `protobuf:"bytes,9,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -524,6 +525,13 @@ func (x *UpdateExpenseRequest) GetDate() *timestamppb.Timestamp {
 		return x.Date
 	}
 	return nil
+}
+
+func (x *UpdateExpenseRequest) GetAccountId() string {
+	if x != nil && x.AccountId != nil {
+		return *x.AccountId
+	}
+	return ""
 }
 
 type UpdateExpenseResponse struct {
@@ -714,7 +722,7 @@ const file_finance_v1_expense_proto_rawDesc = "" +
 	"\f_category_idB\x0e\n" +
 	"\f_description\"F\n" +
 	"\x15CreateExpenseResponse\x12-\n" +
-	"\aexpense\x18\x01 \x01(\v2\x13.finance.v1.ExpenseR\aexpense\"\xab\x03\n" +
+	"\aexpense\x18\x01 \x01(\v2\x13.finance.v1.ExpenseR\aexpense\"\xde\x03\n" +
 	"\x14UpdateExpenseRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\x06amount\x18\x02 \x01(\tH\x00R\x06amount\x88\x01\x01\x12\x1f\n" +
@@ -724,14 +732,17 @@ const file_finance_v1_expense_proto_rawDesc = "" +
 	"\vcategory_id\x18\x06 \x01(\tH\x04R\n" +
 	"categoryId\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\a \x01(\tH\x05R\vdescription\x88\x01\x01\x123\n" +
-	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x06R\x04date\x88\x01\x01B\t\n" +
+	"\x04date\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x06R\x04date\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"account_id\x18\t \x01(\tH\aR\taccountId\x88\x01\x01B\t\n" +
 	"\a_amountB\v\n" +
 	"\t_currencyB\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +
 	"\f_descriptionB\a\n" +
-	"\x05_date\"F\n" +
+	"\x05_dateB\r\n" +
+	"\v_account_id\"F\n" +
 	"\x15UpdateExpenseResponse\x12-\n" +
 	"\aexpense\x18\x01 \x01(\v2\x13.finance.v1.ExpenseR\aexpense\"&\n" +
 	"\x14DeleteExpenseRequest\x12\x0e\n" +

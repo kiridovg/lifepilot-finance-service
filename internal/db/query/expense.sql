@@ -22,7 +22,9 @@ SELECT * FROM expenses WHERE user_id = $1 ORDER BY date DESC;
 
 -- name: UpdateExpense :one
 UPDATE expenses
-SET amount           = COALESCE(sqlc.narg(amount), amount),
+SET account_id       = COALESCE(sqlc.narg(account_id), account_id),
+    user_id          = COALESCE(sqlc.narg(user_id), user_id),
+    amount           = COALESCE(sqlc.narg(amount), amount),
     currency         = COALESCE(sqlc.narg(currency), currency),
     charged_amount   = COALESCE(sqlc.narg(charged_amount), charged_amount),
     charged_currency = COALESCE(sqlc.narg(charged_currency), charged_currency),

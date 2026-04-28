@@ -70,7 +70,7 @@ func (h *ExpenseHandler) UpdateExpense(ctx context.Context, req *connect.Request
 	if m.Date != nil {
 		dateTs = pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true}
 	}
-	r, err := h.q.UpdateExpense(ctx, db.UpdateExpenseParams{
+	params := db.UpdateExpenseParams{
 		ID:              uuidFromString(m.Id),
 		Amount:          nullNumericFromPtr(m.Amount),
 		Currency:        nullTextFromPtr(m.Currency),
@@ -79,7 +79,16 @@ func (h *ExpenseHandler) UpdateExpense(ctx context.Context, req *connect.Request
 		CategoryID:      nullUUIDFromPtr(m.CategoryId),
 		Description:     nullTextFromPtr(m.Description),
 		Date:            dateTs,
-	})
+	}
+	if m.AccountId != nil {
+		acc, err := h.q.GetAccount(ctx, uuidFromString(*m.AccountId))
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err)
+		}
+		params.AccountID = nullUUIDFromPtr(m.AccountId)
+		params.UserID = pgtype.UUID{Bytes: acc.UserID.Bytes, Valid: true}
+	}
+	r, err := h.q.UpdateExpense(ctx, params)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

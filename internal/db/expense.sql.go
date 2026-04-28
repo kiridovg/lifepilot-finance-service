@@ -235,19 +235,23 @@ func (q *Queries) ListExpensesByUser(ctx context.Context, userID pgtype.UUID) ([
 
 const updateExpense = `-- name: UpdateExpense :one
 UPDATE expenses
-SET amount           = COALESCE($1, amount),
-    currency         = COALESCE($2, currency),
-    charged_amount   = COALESCE($3, charged_amount),
-    charged_currency = COALESCE($4, charged_currency),
-    description      = COALESCE($5, description),
-    category_id      = COALESCE($6, category_id),
-    date             = COALESCE($7, date),
+SET account_id       = COALESCE($1, account_id),
+    user_id          = COALESCE($2, user_id),
+    amount           = COALESCE($3, amount),
+    currency         = COALESCE($4, currency),
+    charged_amount   = COALESCE($5, charged_amount),
+    charged_currency = COALESCE($6, charged_currency),
+    description      = COALESCE($7, description),
+    category_id      = COALESCE($8, category_id),
+    date             = COALESCE($9, date),
     updated_at       = NOW()
-WHERE id = $8
+WHERE id = $10
 RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, created_at, updated_at
 `
 
 type UpdateExpenseParams struct {
+	AccountID       pgtype.UUID
+	UserID          pgtype.UUID
 	Amount          pgtype.Numeric
 	Currency        pgtype.Text
 	ChargedAmount   pgtype.Numeric
@@ -260,6 +264,8 @@ type UpdateExpenseParams struct {
 
 func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (Expense, error) {
 	row := q.db.QueryRow(ctx, updateExpense,
+		arg.AccountID,
+		arg.UserID,
 		arg.Amount,
 		arg.Currency,
 		arg.ChargedAmount,
