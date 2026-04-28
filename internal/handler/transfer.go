@@ -41,10 +41,13 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 	err := pgx.BeginFunc(ctx, h.pool, func(tx pgx.Tx) error {
 		q := db.New(tx)
 
+		// from_amount stored as NET (user enters gross; we subtract commission1)
+		fromAmountNet := nullNumericSubtract(m.FromAmount, m.Commission)
+
 		r, err := q.CreateTransfer(ctx, db.CreateTransferParams{
 			Date:                pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 			FromAccountID:       nullUUIDFromPtr(m.FromAccountId),
-			FromAmount:          nullNumericFromPtr(m.FromAmount),
+			FromAmount:          fromAmountNet,
 			FromCurrency:        nullTextFromPtr(m.FromCurrency),
 			ToAccountID:         nullUUIDFromPtr(m.ToAccountId),
 			ToAmount:            numericFromString(m.ToAmount),
@@ -60,7 +63,7 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 			return err
 		}
 
-		// Commission expense linked to this transfer (excluded from balance, visible in bank-fees stats)
+		// Commission1 expense — from from_account, affects balance (from_amount is net)
 		if m.Commission != nil && *m.Commission != "" && *m.Commission != "0" && m.FromAccountId != nil {
 			fromAcc, err := q.GetAccount(ctx, uuidFromString(*m.FromAccountId))
 			if err != nil {
@@ -80,7 +83,7 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 			}
 		}
 
-		// Commission2 expense (e.g. ATM KZT fee) — linked to transfer, from to_account
+		// Commission2 expense — from to_account (e.g. ATM KZT fee), affects balance
 		if m.Commission2 != nil && *m.Commission2 != "" && *m.Commission2 != "0" && m.ToAccountId != nil {
 			toAcc, err := q.GetAccount(ctx, uuidFromString(*m.ToAccountId))
 			if err != nil {

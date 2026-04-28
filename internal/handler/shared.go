@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 	"time"
 
@@ -85,6 +86,21 @@ func uuidToString(u pgtype.UUID) string {
 	b := u.Bytes
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
+}
+
+// nullNumericSubtract returns a - b as pgtype.Numeric. If a is nil, returns zero.
+func nullNumericSubtract(a, b *string) pgtype.Numeric {
+	if a == nil || *a == "" {
+		return pgtype.Numeric{}
+	}
+	aVal, _ := new(big.Float).SetString(*a)
+	if b != nil && *b != "" && *b != "0" {
+		bVal, _ := new(big.Float).SetString(*b)
+		aVal.Sub(aVal, bVal)
+	}
+	result, _ := aVal.Float64()
+	s := strconv.FormatFloat(result, 'f', -1, 64)
+	return numericFromString(s)
 }
 
 func nullUUIDFromPtr(s *string) pgtype.UUID {

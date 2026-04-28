@@ -96,7 +96,6 @@ SELECT COALESCE(SUM(
 FROM expenses
 WHERE account_id   = $1
   AND date         >= $3
-  AND transfer_id  IS NULL
   AND (currency = $2 OR charged_currency = $2)
 `
 
