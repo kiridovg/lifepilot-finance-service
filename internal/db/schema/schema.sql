@@ -59,6 +59,7 @@ CREATE TABLE accounts (
 -- to_account_id   NULL = money sent to external (outgoing transfer, deposit)
 -- fromAmount is the TOTAL debited (includes commission) — already in fromAmount
 -- linked_transfer_id: links a deposit to its return (or any paired transfers)
+-- rate: explicit exchange rate (from_currency per to_currency), stored at transaction time for FIFO cost basis
 CREATE TABLE transfers (
     id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     date                 TIMESTAMPTZ NOT NULL,
@@ -73,6 +74,7 @@ CREATE TABLE transfers (
     commission2           DECIMAL(18, 8),
     commission2_currency  TEXT,
     description           TEXT,
+    rate                  DECIMAL(18, 10),
     linked_transfer_id   UUID        REFERENCES transfers (id) ON DELETE SET NULL,
     created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -82,6 +84,7 @@ CREATE TABLE transfers (
 -- Expenses: money spent
 -- chargedAmount/chargedCurrency: when card currency differs from purchase currency
 -- transfer_id: if this is a transfer fee — excluded from balance, shown in bank-fees stats
+-- base_amount/base_currency: computed at insert via FIFO lots, fixed forever — used for stats
 CREATE TABLE expenses (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id           UUID        NOT NULL REFERENCES users (id),
@@ -95,6 +98,8 @@ CREATE TABLE expenses (
     description       TEXT,
     transfer_id       UUID        REFERENCES transfers (id) ON DELETE CASCADE,
     is_refund         BOOLEAN     NOT NULL DEFAULT FALSE,
+    base_amount       DECIMAL(18, 8),
+    base_currency     TEXT,
     created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -108,6 +113,7 @@ CREATE INDEX idx_transfers_date          ON transfers (date);
 CREATE INDEX idx_transfers_linked        ON transfers (linked_transfer_id);
 
 -- Incomes: money received
+-- base_amount/base_currency: computed at insert, fixed forever — used for stats
 CREATE TABLE incomes (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id           UUID        NOT NULL REFERENCES users (id),
@@ -121,9 +127,30 @@ CREATE TABLE incomes (
     description          TEXT,
     is_refund            BOOLEAN     NOT NULL DEFAULT FALSE,
     refunded_expense_id  UUID        REFERENCES expenses (id) ON DELETE SET NULL,
+    base_amount          DECIMAL(18, 8),
+    base_currency        TEXT,
     created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- FIFO cost-basis lots: created by transfers/incomes into foreign-currency accounts,
+-- consumed (FIFO) when expenses are recorded from those accounts.
+-- rate_to_base: how many base_currency units per 1 unit of account currency
+-- remaining: decremented on each expense; lot is exhausted when remaining = 0
+CREATE TABLE account_lots (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id      UUID        NOT NULL REFERENCES accounts (id),
+    transfer_id     UUID        REFERENCES transfers (id) ON DELETE SET NULL,
+    original_amount DECIMAL(18, 8) NOT NULL,
+    rate_to_base    DECIMAL(18, 10) NOT NULL,
+    remaining       DECIMAL(18, 8) NOT NULL,
+    base_currency   TEXT        NOT NULL,
+    date            TIMESTAMPTZ NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_account_lots_account_date ON account_lots (account_id, date);
+CREATE INDEX idx_account_lots_remaining    ON account_lots (account_id, date) WHERE remaining > 0;
 
 CREATE INDEX idx_incomes_account_id ON incomes (account_id);
 CREATE INDEX idx_incomes_date       ON incomes (date);
