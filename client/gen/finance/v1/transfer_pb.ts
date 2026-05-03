@@ -89,6 +89,13 @@ export class Transfer extends Message<Transfer> {
    */
   commission2Currency?: string;
 
+  /**
+   * Explicit exchange rate (from_currency per to_currency), fixed at transaction time
+   *
+   * @generated from field: optional string rate = 16;
+   */
+  rate?: string;
+
   constructor(data?: PartialMessage<Transfer>) {
     super();
     proto3.util.initPartial(data, this);
@@ -112,6 +119,7 @@ export class Transfer extends Message<Transfer> {
     { no: 13, name: "created_at", kind: "message", T: Timestamp },
     { no: 14, name: "commission2", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 15, name: "commission2_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 16, name: "rate", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Transfer {
@@ -286,6 +294,11 @@ export class CreateTransferRequest extends Message<CreateTransferRequest> {
    */
   commission2Currency?: string;
 
+  /**
+   * @generated from field: optional string rate = 14;
+   */
+  rate?: string;
+
   constructor(data?: PartialMessage<CreateTransferRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -307,6 +320,7 @@ export class CreateTransferRequest extends Message<CreateTransferRequest> {
     { no: 11, name: "date", kind: "message", T: Timestamp },
     { no: 12, name: "commission2", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 13, name: "commission2_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 14, name: "rate", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateTransferRequest {

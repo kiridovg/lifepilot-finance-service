@@ -22,6 +22,18 @@ type Account struct {
 	UpdatedAt      pgtype.Timestamptz
 }
 
+type AccountLot struct {
+	ID             pgtype.UUID
+	AccountID      pgtype.UUID
+	TransferID     pgtype.UUID
+	OriginalAmount pgtype.Numeric
+	RateToBase     pgtype.Numeric
+	Remaining      pgtype.Numeric
+	BaseCurrency   string
+	Date           pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+}
+
 type Category struct {
 	ID        pgtype.UUID
 	Name      string
@@ -51,6 +63,8 @@ type Expense struct {
 	Description     pgtype.Text
 	TransferID      pgtype.UUID
 	IsRefund        bool
+	BaseAmount      pgtype.Numeric
+	BaseCurrency    pgtype.Text
 	CreatedAt       pgtype.Timestamptz
 	UpdatedAt       pgtype.Timestamptz
 }
@@ -68,6 +82,8 @@ type Income struct {
 	Description       pgtype.Text
 	IsRefund          bool
 	RefundedExpenseID pgtype.UUID
+	BaseAmount        pgtype.Numeric
+	BaseCurrency      pgtype.Text
 	CreatedAt         pgtype.Timestamptz
 	UpdatedAt         pgtype.Timestamptz
 }
@@ -86,6 +102,7 @@ type Transfer struct {
 	Commission2         pgtype.Numeric
 	Commission2Currency pgtype.Text
 	Description         pgtype.Text
+	Rate                pgtype.Numeric
 	LinkedTransferID    pgtype.UUID
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz

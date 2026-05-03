@@ -53,8 +53,8 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 	err := pgx.BeginFunc(ctx, h.pool, func(tx pgx.Tx) error {
 		q := db.New(tx)
 
-		// from_amount stored as NET (user enters gross; we subtract commission1)
 		fromAmountNet := nullNumericSubtract(m.FromAmount, m.Commission)
+		rate := numericToFloat(nullNumericFromPtr(m.Rate))
 
 		r, err := q.CreateTransfer(ctx, db.CreateTransferParams{
 			Date:                pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
@@ -70,18 +70,24 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 			Commission2Currency: nullTextFromPtr(m.Commission2Currency),
 			Description:         nullTextFromPtr(m.Description),
 			LinkedTransferID:    nullUUIDFromPtr(m.LinkedTransferId),
+			Rate:                nullNumericFromPtr(m.Rate),
 		})
 		if err != nil {
 			return err
 		}
 
-		// Commission1 expense — from from_account, affects balance (from_amount is net)
+		// Commission1: fee from the source account (e.g. Wise EUR commission)
 		if m.Commission != nil && *m.Commission != "" && *m.Commission != "0" && m.FromAccountId != nil {
 			fromAcc, err := q.GetAccount(ctx, uuidFromString(*m.FromAccountId))
 			if err != nil {
 				return err
 			}
-			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+			// Commission1 is in from_currency — if from_currency == EUR, rate_to_base = 1
+			comm1RateToBase := 0.0
+			if strDeref(m.CommissionCurrency) == BaseCurrency {
+				comm1RateToBase = 1.0
+			}
+			_, err = createExpenseWithBase(ctx, q, db.CreateExpenseParams{
 				UserID:      fromAcc.UserID,
 				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 				Amount:      numericFromString(*m.Commission),
@@ -90,19 +96,38 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 				CategoryID:  systemCategoryUUID("bank-fees"),
 				TransferID:  r.ID,
 				Description: commissionDesc(m.Description),
+			}, comm1RateToBase)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Create FIFO lot for the destination account when receiving foreign currency.
+		// rate is stored as: base_currency (EUR) per 1 unit of to_currency.
+		// Lot is created BEFORE commission2 so that commission2 can immediately consume from it.
+		if m.ToAccountId != nil && m.ToCurrency != BaseCurrency && rate > 0 {
+			toAmount := numericToFloat(numericFromString(m.ToAmount))
+			_, err = q.CreateLot(ctx, db.CreateLotParams{
+				AccountID:      uuidFromString(*m.ToAccountId),
+				TransferID:     r.ID,
+				OriginalAmount: numericFromFloat64(toAmount),
+				RateToBase:     numericFromFloat64(rate),
+				Remaining:      numericFromFloat64(toAmount),
+				BaseCurrency:   BaseCurrency,
+				Date:           pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 			})
 			if err != nil {
 				return err
 			}
 		}
 
-		// Commission2 expense — from to_account (e.g. ATM KZT fee), affects balance
+		// Commission2: fee taken from the destination account (e.g. ATM KZT fee)
 		if m.Commission2 != nil && *m.Commission2 != "" && *m.Commission2 != "0" && m.ToAccountId != nil {
 			toAcc, err := q.GetAccount(ctx, uuidFromString(*m.ToAccountId))
 			if err != nil {
 				return err
 			}
-			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+			_, err = createExpenseWithBase(ctx, q, db.CreateExpenseParams{
 				UserID:      toAcc.UserID,
 				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 				Amount:      numericFromString(*m.Commission2),
@@ -111,7 +136,7 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 				CategoryID:  systemCategoryUUID("bank-fees"),
 				TransferID:  r.ID,
 				Description: commissionDesc(m.Description),
-			})
+			}, rate)
 			if err != nil {
 				return err
 			}
@@ -148,6 +173,7 @@ func transferToProto(r db.Transfer) *financev1.Transfer {
 		Commission2Currency: nullTextToPtr(r.Commission2Currency),
 		Description:         nullTextToPtr(r.Description),
 		LinkedTransferId:    nullUUIDToPtr(r.LinkedTransferID),
+		Rate:                nullNumericToPtr(r.Rate),
 		Date:                timestamppb.New(r.Date.Time),
 		CreatedAt:           timestamppb.New(r.CreatedAt.Time),
 	}

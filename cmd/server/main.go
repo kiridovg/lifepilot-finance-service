@@ -47,16 +47,16 @@ func main() {
 	}
 	defer pool.Close()
 
-	q := db.New(pool)
 	mux := http.NewServeMux()
 
-	mux.Handle(financev1connect.NewExpenseServiceHandler(handler.NewExpenseHandler(q)))
+	mux.Handle(financev1connect.NewExpenseServiceHandler(handler.NewExpenseHandler(pool)))
 	mux.Handle(financev1connect.NewTransferServiceHandler(handler.NewTransferHandler(pool)))
 	mux.Handle(financev1connect.NewAccountServiceHandler(handler.NewAccountHandler(pool)))
 	mux.Handle(financev1connect.NewCurrencyServiceHandler(handler.NewCurrencyHandler(pool)))
 	mux.Handle(financev1connect.NewUserServiceHandler(handler.NewUserHandler(pool)))
 	mux.Handle(financev1connect.NewCategoryServiceHandler(handler.NewCategoryHandler(pool)))
-	mux.Handle(financev1connect.NewIncomeServiceHandler(handler.NewIncomeHandler(q)))
+	mux.Handle(financev1connect.NewIncomeServiceHandler(handler.NewIncomeHandler(db.New(pool))))
+	mux.Handle(financev1connect.NewStatsServiceHandler(handler.NewStatsHandler(pool)))
 
 	addr := ":" + getEnv("PORT", "8080")
 	srv := &http.Server{

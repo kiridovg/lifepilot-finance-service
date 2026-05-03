@@ -1,7 +1,13 @@
 -- name: CreateExpense :one
 INSERT INTO expenses (user_id, date, amount, currency, charged_amount, charged_currency,
-                      account_id, category_id, description, transfer_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                      account_id, category_id, description, transfer_id, base_amount, base_currency)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+RETURNING *;
+
+-- name: SetExpenseBaseAmount :one
+UPDATE expenses
+SET base_amount = $2, base_currency = $3, updated_at = NOW()
+WHERE id = $1
 RETURNING *;
 
 -- name: ListExpensesByAccount :many

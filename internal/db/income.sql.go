@@ -13,9 +13,9 @@ import (
 
 const createIncome = `-- name: CreateIncome :one
 INSERT INTO incomes (user_id, date, amount, currency, charged_amount, charged_currency,
-                     account_id, category_id, description)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at
+                     account_id, category_id, description, base_amount, base_currency)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at
 `
 
 type CreateIncomeParams struct {
@@ -28,6 +28,8 @@ type CreateIncomeParams struct {
 	AccountID       pgtype.UUID
 	CategoryID      pgtype.UUID
 	Description     pgtype.Text
+	BaseAmount      pgtype.Numeric
+	BaseCurrency    pgtype.Text
 }
 
 func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Income, error) {
@@ -41,6 +43,8 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 		arg.AccountID,
 		arg.CategoryID,
 		arg.Description,
+		arg.BaseAmount,
+		arg.BaseCurrency,
 	)
 	var i Income
 	err := row.Scan(
@@ -56,6 +60,8 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 		&i.Description,
 		&i.IsRefund,
 		&i.RefundedExpenseID,
+		&i.BaseAmount,
+		&i.BaseCurrency,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -72,7 +78,7 @@ func (q *Queries) DeleteIncome(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listIncomes = `-- name: ListIncomes :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at FROM incomes ORDER BY date DESC
 `
 
 func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
@@ -97,6 +103,8 @@ func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
 			&i.Description,
 			&i.IsRefund,
 			&i.RefundedExpenseID,
+			&i.BaseAmount,
+			&i.BaseCurrency,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -111,7 +119,7 @@ func (q *Queries) ListIncomes(ctx context.Context) ([]Income, error) {
 }
 
 const listIncomesByAccount = `-- name: ListIncomesByAccount :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at FROM incomes
 WHERE account_id = $1
   AND ($2::timestamptz IS NULL OR date >= $2::timestamptz)
   AND ($3::timestamptz IS NULL OR date < $3::timestamptz)
@@ -146,6 +154,8 @@ func (q *Queries) ListIncomesByAccount(ctx context.Context, arg ListIncomesByAcc
 			&i.Description,
 			&i.IsRefund,
 			&i.RefundedExpenseID,
+			&i.BaseAmount,
+			&i.BaseCurrency,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -160,7 +170,7 @@ func (q *Queries) ListIncomesByAccount(ctx context.Context, arg ListIncomesByAcc
 }
 
 const listIncomesByDateRange = `-- name: ListIncomesByDateRange :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at FROM incomes
 WHERE date >= $1 AND date < $2
 ORDER BY date DESC
 `
@@ -192,6 +202,8 @@ func (q *Queries) ListIncomesByDateRange(ctx context.Context, arg ListIncomesByD
 			&i.Description,
 			&i.IsRefund,
 			&i.RefundedExpenseID,
+			&i.BaseAmount,
+			&i.BaseCurrency,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -206,7 +218,7 @@ func (q *Queries) ListIncomesByDateRange(ctx context.Context, arg ListIncomesByD
 }
 
 const listIncomesByUser = `-- name: ListIncomesByUser :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at FROM incomes WHERE user_id = $1 ORDER BY date DESC
 `
 
 func (q *Queries) ListIncomesByUser(ctx context.Context, userID pgtype.UUID) ([]Income, error) {
@@ -231,6 +243,8 @@ func (q *Queries) ListIncomesByUser(ctx context.Context, userID pgtype.UUID) ([]
 			&i.Description,
 			&i.IsRefund,
 			&i.RefundedExpenseID,
+			&i.BaseAmount,
+			&i.BaseCurrency,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -255,7 +269,7 @@ SET amount           = COALESCE($1, amount),
     date             = COALESCE($7, date),
     updated_at       = NOW()
 WHERE id = $8
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, is_refund, refunded_expense_id, base_amount, base_currency, created_at, updated_at
 `
 
 type UpdateIncomeParams struct {
@@ -294,6 +308,8 @@ func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) (Inc
 		&i.Description,
 		&i.IsRefund,
 		&i.RefundedExpenseID,
+		&i.BaseAmount,
+		&i.BaseCurrency,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

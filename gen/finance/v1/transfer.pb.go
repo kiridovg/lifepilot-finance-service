@@ -41,8 +41,10 @@ type Transfer struct {
 	CreatedAt           *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Commission2         *string                `protobuf:"bytes,14,opt,name=commission2,proto3,oneof" json:"commission2,omitempty"`
 	Commission2Currency *string                `protobuf:"bytes,15,opt,name=commission2_currency,json=commission2Currency,proto3,oneof" json:"commission2_currency,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Explicit exchange rate (from_currency per to_currency), fixed at transaction time
+	Rate          *string `protobuf:"bytes,16,opt,name=rate,proto3,oneof" json:"rate,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Transfer) Reset() {
@@ -180,6 +182,13 @@ func (x *Transfer) GetCommission2Currency() string {
 	return ""
 }
 
+func (x *Transfer) GetRate() string {
+	if x != nil && x.Rate != nil {
+		return *x.Rate
+	}
+	return ""
+}
+
 type ListTransfersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccountId     *string                `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
@@ -299,6 +308,7 @@ type CreateTransferRequest struct {
 	Date                *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
 	Commission2         *string                `protobuf:"bytes,12,opt,name=commission2,proto3,oneof" json:"commission2,omitempty"`
 	Commission2Currency *string                `protobuf:"bytes,13,opt,name=commission2_currency,json=commission2Currency,proto3,oneof" json:"commission2_currency,omitempty"`
+	Rate                *string                `protobuf:"bytes,14,opt,name=rate,proto3,oneof" json:"rate,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -420,6 +430,13 @@ func (x *CreateTransferRequest) GetCommission2() string {
 func (x *CreateTransferRequest) GetCommission2Currency() string {
 	if x != nil && x.Commission2Currency != nil {
 		return *x.Commission2Currency
+	}
+	return ""
+}
+
+func (x *CreateTransferRequest) GetRate() string {
+	if x != nil && x.Rate != nil {
+		return *x.Rate
 	}
 	return ""
 }
@@ -553,7 +570,7 @@ var File_finance_v1_transfer_proto protoreflect.FileDescriptor
 const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\n" +
 	"\x19finance/v1/transfer.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x06\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xde\x06\n" +
 	"\bTransfer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
 	"\x0ffrom_account_id\x18\x02 \x01(\tH\x00R\rfromAccountId\x88\x01\x01\x12$\n" +
@@ -575,7 +592,9 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12%\n" +
 	"\vcommission2\x18\x0e \x01(\tH\bR\vcommission2\x88\x01\x01\x126\n" +
-	"\x14commission2_currency\x18\x0f \x01(\tH\tR\x13commission2Currency\x88\x01\x01B\x12\n" +
+	"\x14commission2_currency\x18\x0f \x01(\tH\tR\x13commission2Currency\x88\x01\x01\x12\x17\n" +
+	"\x04rate\x18\x10 \x01(\tH\n" +
+	"R\x04rate\x88\x01\x01B\x12\n" +
 	"\x10_from_account_idB\x0e\n" +
 	"\f_from_amountB\x10\n" +
 	"\x0e_from_currencyB\x10\n" +
@@ -585,7 +604,8 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\f_descriptionB\x15\n" +
 	"\x13_linked_transfer_idB\x0e\n" +
 	"\f_commission2B\x17\n" +
-	"\x15_commission2_currency\"\xdb\x01\n" +
+	"\x15_commission2_currencyB\a\n" +
+	"\x05_rate\"\xdb\x01\n" +
 	"\x14ListTransfersRequest\x12\"\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tH\x00R\taccountId\x88\x01\x01\x12<\n" +
@@ -597,7 +617,7 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\n" +
 	"\b_date_to\"K\n" +
 	"\x15ListTransfersResponse\x122\n" +
-	"\ttransfers\x18\x01 \x03(\v2\x14.finance.v1.TransferR\ttransfers\"\xfe\x05\n" +
+	"\ttransfers\x18\x01 \x03(\v2\x14.finance.v1.TransferR\ttransfers\"\xa0\x06\n" +
 	"\x15CreateTransferRequest\x12+\n" +
 	"\x0ffrom_account_id\x18\x01 \x01(\tH\x00R\rfromAccountId\x88\x01\x01\x12$\n" +
 	"\vfrom_amount\x18\x02 \x01(\tH\x01R\n" +
@@ -616,7 +636,9 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	" \x01(\tH\aR\x10linkedTransferId\x88\x01\x01\x12.\n" +
 	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12%\n" +
 	"\vcommission2\x18\f \x01(\tH\bR\vcommission2\x88\x01\x01\x126\n" +
-	"\x14commission2_currency\x18\r \x01(\tH\tR\x13commission2Currency\x88\x01\x01B\x12\n" +
+	"\x14commission2_currency\x18\r \x01(\tH\tR\x13commission2Currency\x88\x01\x01\x12\x17\n" +
+	"\x04rate\x18\x0e \x01(\tH\n" +
+	"R\x04rate\x88\x01\x01B\x12\n" +
 	"\x10_from_account_idB\x0e\n" +
 	"\f_from_amountB\x10\n" +
 	"\x0e_from_currencyB\x10\n" +
@@ -626,7 +648,8 @@ const file_finance_v1_transfer_proto_rawDesc = "" +
 	"\f_descriptionB\x15\n" +
 	"\x13_linked_transfer_idB\x0e\n" +
 	"\f_commission2B\x17\n" +
-	"\x15_commission2_currency\"J\n" +
+	"\x15_commission2_currencyB\a\n" +
+	"\x05_rate\"J\n" +
 	"\x16CreateTransferResponse\x120\n" +
 	"\btransfer\x18\x01 \x01(\v2\x14.finance.v1.TransferR\btransfer\"'\n" +
 	"\x15DeleteTransferRequest\x12\x0e\n" +

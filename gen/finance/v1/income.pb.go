@@ -37,6 +37,8 @@ type Income struct {
 	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	IsRefund          bool                   `protobuf:"varint,12,opt,name=is_refund,json=isRefund,proto3" json:"is_refund,omitempty"`
 	RefundedExpenseId *string                `protobuf:"bytes,13,opt,name=refunded_expense_id,json=refundedExpenseId,proto3,oneof" json:"refunded_expense_id,omitempty"`
+	BaseAmount        *string                `protobuf:"bytes,14,opt,name=base_amount,json=baseAmount,proto3,oneof" json:"base_amount,omitempty"`
+	BaseCurrency      *string                `protobuf:"bytes,15,opt,name=base_currency,json=baseCurrency,proto3,oneof" json:"base_currency,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -158,6 +160,20 @@ func (x *Income) GetIsRefund() bool {
 func (x *Income) GetRefundedExpenseId() string {
 	if x != nil && x.RefundedExpenseId != nil {
 		return *x.RefundedExpenseId
+	}
+	return ""
+}
+
+func (x *Income) GetBaseAmount() string {
+	if x != nil && x.BaseAmount != nil {
+		return *x.BaseAmount
+	}
+	return ""
+}
+
+func (x *Income) GetBaseCurrency() string {
+	if x != nil && x.BaseCurrency != nil {
+		return *x.BaseCurrency
 	}
 	return ""
 }
@@ -663,7 +679,7 @@ var File_finance_v1_income_proto protoreflect.FileDescriptor
 const file_finance_v1_income_proto_rawDesc = "" +
 	"\n" +
 	"\x17finance/v1/income.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xca\x04\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x05\n" +
 	"\x06Income\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
@@ -681,12 +697,17 @@ const file_finance_v1_income_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
 	"\tis_refund\x18\f \x01(\bR\bisRefund\x123\n" +
-	"\x13refunded_expense_id\x18\r \x01(\tH\x04R\x11refundedExpenseId\x88\x01\x01B\x11\n" +
+	"\x13refunded_expense_id\x18\r \x01(\tH\x04R\x11refundedExpenseId\x88\x01\x01\x12$\n" +
+	"\vbase_amount\x18\x0e \x01(\tH\x05R\n" +
+	"baseAmount\x88\x01\x01\x12(\n" +
+	"\rbase_currency\x18\x0f \x01(\tH\x06R\fbaseCurrency\x88\x01\x01B\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +
 	"\f_descriptionB\x16\n" +
-	"\x14_refunded_expense_id\"\xb9\x02\n" +
+	"\x14_refunded_expense_idB\x0e\n" +
+	"\f_base_amountB\x10\n" +
+	"\x0e_base_currency\"\xb9\x02\n" +
 	"\x12ListIncomesRequest\x12\x1c\n" +
 	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01\x12\"\n" +
 	"\n" +

@@ -49,6 +49,10 @@ func numericToFloat(n pgtype.Numeric) float64 {
 	return f.Float64
 }
 
+func numericFromFloat64(f float64) pgtype.Numeric {
+	return numericFromString(strconv.FormatFloat(f, 'f', 8, 64))
+}
+
 // --- text ---
 
 func nullTextFromPtr(s *string) pgtype.Text {

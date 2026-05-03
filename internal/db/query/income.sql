@@ -1,7 +1,7 @@
 -- name: CreateIncome :one
 INSERT INTO incomes (user_id, date, amount, currency, charged_amount, charged_currency,
-                     account_id, category_id, description)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                     account_id, category_id, description, base_amount, base_currency)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING *;
 
 -- name: ListIncomes :many

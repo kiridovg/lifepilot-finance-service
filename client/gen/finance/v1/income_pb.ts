@@ -75,6 +75,16 @@ export class Income extends Message<Income> {
    */
   refundedExpenseId?: string;
 
+  /**
+   * @generated from field: optional string base_amount = 14;
+   */
+  baseAmount?: string;
+
+  /**
+   * @generated from field: optional string base_currency = 15;
+   */
+  baseCurrency?: string;
+
   constructor(data?: PartialMessage<Income>) {
     super();
     proto3.util.initPartial(data, this);
@@ -96,6 +106,8 @@ export class Income extends Message<Income> {
     { no: 11, name: "created_at", kind: "message", T: Timestamp },
     { no: 12, name: "is_refund", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 13, name: "refunded_expense_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 14, name: "base_amount", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 15, name: "base_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Income {

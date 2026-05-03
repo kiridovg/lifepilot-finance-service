@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package finance.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1;financev1";
+
+message MonthStat {
+  int32 year = 1;
+  int32 month = 2;
+  string total = 3;
+  string currency = 4;
+  int32 count = 5;
+}
+
+message GetMonthStatsRequest {
+  int32 year = 1;
+  int32 month = 2;
+  string base_currency = 3;
+  optional string user_id = 4;
+}
+
+message GetMonthStatsResponse {
+  string total = 1;
+  string currency = 2;
+  int32 count = 3;
+  int32 days_in_month = 4;
+  string average_per_day = 5;
+}
+
+message GetYearStatsRequest {
+  int32 year = 1;
+  string base_currency = 2;
+  optional string user_id = 3;
+}
+
+message GetYearStatsResponse {
+  int32 year = 1;
+  string currency = 2;
+  repeated MonthStat monthly_stats = 3;
+  string total = 4;
+  string average_per_month = 5;
+}
+
+message GetAllTimeStatsRequest {
+  string base_currency = 1;
+  optional string user_id = 2;
+}
+
+message GetAllTimeStatsResponse {
+  string currency = 1;
+  repeated MonthStat monthly_stats = 2;
+  string total = 3;
+  string average_per_month = 4;
+}
+
+service StatsService {
+  rpc GetMonthStats(GetMonthStatsRequest) returns (GetMonthStatsResponse);
+  rpc GetYearStats(GetYearStatsRequest) returns (GetYearStatsResponse);
+  rpc GetAllTimeStats(GetAllTimeStatsRequest) returns (GetAllTimeStatsResponse);
+}

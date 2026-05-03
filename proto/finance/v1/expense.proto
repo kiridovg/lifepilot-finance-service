@@ -20,6 +20,8 @@ message Expense {
   google.protobuf.Timestamp date = 11;
   google.protobuf.Timestamp created_at = 12;
   bool is_refund = 13;
+  optional string base_amount = 14;
+  optional string base_currency = 15;
 }
 
 message ListExpensesRequest {

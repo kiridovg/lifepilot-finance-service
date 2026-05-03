@@ -37,6 +37,8 @@ type Expense struct {
 	Date            *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
 	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	IsRefund        bool                   `protobuf:"varint,13,opt,name=is_refund,json=isRefund,proto3" json:"is_refund,omitempty"`
+	BaseAmount      *string                `protobuf:"bytes,14,opt,name=base_amount,json=baseAmount,proto3,oneof" json:"base_amount,omitempty"`
+	BaseCurrency    *string                `protobuf:"bytes,15,opt,name=base_currency,json=baseCurrency,proto3,oneof" json:"base_currency,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -160,6 +162,20 @@ func (x *Expense) GetIsRefund() bool {
 		return x.IsRefund
 	}
 	return false
+}
+
+func (x *Expense) GetBaseAmount() string {
+	if x != nil && x.BaseAmount != nil {
+		return *x.BaseAmount
+	}
+	return ""
+}
+
+func (x *Expense) GetBaseCurrency() string {
+	if x != nil && x.BaseCurrency != nil {
+		return *x.BaseCurrency
+	}
+	return ""
 }
 
 type ListExpensesRequest struct {
@@ -671,7 +687,7 @@ var File_finance_v1_expense_proto protoreflect.FileDescriptor
 const file_finance_v1_expense_proto_rawDesc = "" +
 	"\n" +
 	"\x18finance/v1/expense.proto\x12\n" +
-	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x04\n" +
+	"finance.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa6\x05\n" +
 	"\aExpense\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
@@ -690,12 +706,17 @@ const file_finance_v1_expense_proto_rawDesc = "" +
 	"\x04date\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x129\n" +
 	"\n" +
 	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1b\n" +
-	"\tis_refund\x18\r \x01(\bR\bisRefundB\x11\n" +
+	"\tis_refund\x18\r \x01(\bR\bisRefund\x12$\n" +
+	"\vbase_amount\x18\x0e \x01(\tH\x05R\n" +
+	"baseAmount\x88\x01\x01\x12(\n" +
+	"\rbase_currency\x18\x0f \x01(\tH\x06R\fbaseCurrency\x88\x01\x01B\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +
 	"\f_descriptionB\x0e\n" +
-	"\f_transfer_id\"\xba\x02\n" +
+	"\f_transfer_idB\x0e\n" +
+	"\f_base_amountB\x10\n" +
+	"\x0e_base_currency\"\xba\x02\n" +
 	"\x13ListExpensesRequest\x12\x1c\n" +
 	"\auser_id\x18\x01 \x01(\tH\x00R\x06userId\x88\x01\x01\x12\"\n" +
 	"\n" +
