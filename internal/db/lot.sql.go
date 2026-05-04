@@ -56,6 +56,7 @@ const listAvailableLots = `-- name: ListAvailableLots :many
 SELECT id, account_id, transfer_id, original_amount, rate_to_base, remaining, base_currency, date, created_at FROM account_lots
 WHERE account_id = $1 AND remaining > 0
 ORDER BY date ASC, created_at ASC
+FOR UPDATE
 `
 
 func (q *Queries) ListAvailableLots(ctx context.Context, accountID pgtype.UUID) ([]AccountLot, error) {

@@ -121,22 +121,27 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 			}
 		}
 
-		// Commission2: fee taken from the destination account (e.g. ATM KZT fee)
+		// Commission2: fee taken from the destination account (e.g. ATM KZT fee).
+		// Uses computeBaseAmount so it consumes from the FIFO lot created above.
 		if m.Commission2 != nil && *m.Commission2 != "" && *m.Commission2 != "0" && m.ToAccountId != nil {
 			toAcc, err := q.GetAccount(ctx, uuidFromString(*m.ToAccountId))
 			if err != nil {
 				return err
 			}
-			_, err = createExpenseWithBase(ctx, q, db.CreateExpenseParams{
-				UserID:      toAcc.UserID,
-				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
-				Amount:      numericFromString(*m.Commission2),
-				Currency:    strDeref(m.Commission2Currency),
-				AccountID:   uuidFromString(*m.ToAccountId),
-				CategoryID:  systemCategoryUUID("bank-fees"),
-				TransferID:  r.ID,
-				Description: commissionDesc(m.Description),
-			}, rate)
+			baseAmt, baseCur := computeBaseAmount(ctx, q, toAcc, nil, nil,
+				*m.Commission2, strDeref(m.Commission2Currency))
+			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+				UserID:       toAcc.UserID,
+				Date:         pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+				Amount:       numericFromString(*m.Commission2),
+				Currency:     strDeref(m.Commission2Currency),
+				AccountID:    uuidFromString(*m.ToAccountId),
+				CategoryID:   systemCategoryUUID("bank-fees"),
+				TransferID:   r.ID,
+				Description:  commissionDesc(m.Description),
+				BaseAmount:   baseAmt,
+				BaseCurrency: baseCur,
+			})
 			if err != nil {
 				return err
 			}

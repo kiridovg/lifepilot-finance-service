@@ -140,7 +140,7 @@ CREATE TABLE incomes (
 CREATE TABLE account_lots (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id      UUID        NOT NULL REFERENCES accounts (id),
-    transfer_id     UUID        REFERENCES transfers (id) ON DELETE SET NULL,
+    transfer_id     UUID        REFERENCES transfers (id) ON DELETE CASCADE,
     original_amount DECIMAL(18, 8) NOT NULL,
     rate_to_base    DECIMAL(18, 10) NOT NULL,
     remaining       DECIMAL(18, 8) NOT NULL,

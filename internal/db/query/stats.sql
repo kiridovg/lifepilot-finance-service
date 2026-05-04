@@ -7,7 +7,8 @@ WHERE base_currency = $1
   AND date >= $2
   AND date < $3
   AND (sqlc.narg(user_id)::uuid IS NULL OR user_id = sqlc.narg(user_id)::uuid)
-  AND is_refund = false;
+  AND is_refund = false
+  AND base_amount IS NOT NULL;
 
 -- name: GetMonthStatsByYear :many
 SELECT

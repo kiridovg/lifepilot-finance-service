@@ -73,6 +73,7 @@ WHERE base_currency = $1
   AND date < $3
   AND ($4::uuid IS NULL OR user_id = $4::uuid)
   AND is_refund = false
+  AND base_amount IS NOT NULL
 `
 
 type GetMonthStatsParams struct {
