@@ -53,13 +53,12 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 	err := pgx.BeginFunc(ctx, h.pool, func(tx pgx.Tx) error {
 		q := db.New(tx)
 
-		fromAmountNet := nullNumericSubtract(m.FromAmount, m.Commission)
 		rate := numericToFloat(nullNumericFromPtr(m.Rate))
 
 		r, err := q.CreateTransfer(ctx, db.CreateTransferParams{
 			Date:                pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
 			FromAccountID:       nullUUIDFromPtr(m.FromAccountId),
-			FromAmount:          fromAmountNet,
+			FromAmount:          nullNumericFromPtr(m.FromAmount),
 			FromCurrency:        nullTextFromPtr(m.FromCurrency),
 			ToAccountID:         nullUUIDFromPtr(m.ToAccountId),
 			ToAmount:            numericFromString(m.ToAmount),
@@ -76,13 +75,12 @@ func (h *TransferHandler) CreateTransfer(ctx context.Context, req *connect.Reque
 			return err
 		}
 
-		// Commission1: fee from the source account (e.g. Wise EUR commission)
+		// Commission1: fee from the source account, recorded as a separate expense.
 		if m.Commission != nil && *m.Commission != "" && *m.Commission != "0" && m.FromAccountId != nil {
 			fromAcc, err := q.GetAccount(ctx, uuidFromString(*m.FromAccountId))
 			if err != nil {
 				return err
 			}
-			// Commission1 is in from_currency — if from_currency == EUR, rate_to_base = 1
 			comm1RateToBase := 0.0
 			if strDeref(m.CommissionCurrency) == BaseCurrency {
 				comm1RateToBase = 1.0
