@@ -17,7 +17,6 @@ import (
 	"golang.org/x/net/http2/h2c"
 
 	financev1connect "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1/financev1connect"
-	"github.com/kiridovg/lifepilot-finance-service/internal/db"
 	"github.com/kiridovg/lifepilot-finance-service/internal/handler"
 )
 
@@ -55,7 +54,7 @@ func main() {
 	mux.Handle(financev1connect.NewCurrencyServiceHandler(handler.NewCurrencyHandler(pool)))
 	mux.Handle(financev1connect.NewUserServiceHandler(handler.NewUserHandler(pool)))
 	mux.Handle(financev1connect.NewCategoryServiceHandler(handler.NewCategoryHandler(pool)))
-	mux.Handle(financev1connect.NewIncomeServiceHandler(handler.NewIncomeHandler(db.New(pool))))
+	mux.Handle(financev1connect.NewIncomeServiceHandler(handler.NewIncomeHandler(pool)))
 	mux.Handle(financev1connect.NewStatsServiceHandler(handler.NewStatsHandler(pool)))
 
 	addr := ":" + getEnv("PORT", "8080")

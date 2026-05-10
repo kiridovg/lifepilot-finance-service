@@ -299,18 +299,20 @@ func (x *ListIncomesResponse) GetIncomes() []*Income {
 }
 
 type CreateIncomeRequest struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	UserId          string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	AccountId       string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	Amount          string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	ChargedAmount   *string                `protobuf:"bytes,5,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
-	ChargedCurrency *string                `protobuf:"bytes,6,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
-	CategoryId      *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
-	Description     *string                `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Date            *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	UserId             string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	AccountId          string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Amount             string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency           string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	ChargedAmount      *string                `protobuf:"bytes,5,opt,name=charged_amount,json=chargedAmount,proto3,oneof" json:"charged_amount,omitempty"`
+	ChargedCurrency    *string                `protobuf:"bytes,6,opt,name=charged_currency,json=chargedCurrency,proto3,oneof" json:"charged_currency,omitempty"`
+	CategoryId         *string                `protobuf:"bytes,7,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`
+	Description        *string                `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Date               *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date,proto3" json:"date,omitempty"`
+	Commission         *string                `protobuf:"bytes,10,opt,name=commission,proto3,oneof" json:"commission,omitempty"`
+	CommissionCurrency *string                `protobuf:"bytes,11,opt,name=commission_currency,json=commissionCurrency,proto3,oneof" json:"commission_currency,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateIncomeRequest) Reset() {
@@ -404,6 +406,20 @@ func (x *CreateIncomeRequest) GetDate() *timestamppb.Timestamp {
 		return x.Date
 	}
 	return nil
+}
+
+func (x *CreateIncomeRequest) GetCommission() string {
+	if x != nil && x.Commission != nil {
+		return *x.Commission
+	}
+	return ""
+}
+
+func (x *CreateIncomeRequest) GetCommissionCurrency() string {
+	if x != nil && x.CommissionCurrency != nil {
+		return *x.CommissionCurrency
+	}
+	return ""
 }
 
 type CreateIncomeResponse struct {
@@ -725,7 +741,7 @@ const file_finance_v1_income_proto_rawDesc = "" +
 	"\n" +
 	"\b_date_to\"C\n" +
 	"\x13ListIncomesResponse\x12,\n" +
-	"\aincomes\x18\x01 \x03(\v2\x12.finance.v1.IncomeR\aincomes\"\xa2\x03\n" +
+	"\aincomes\x18\x01 \x03(\v2\x12.finance.v1.IncomeR\aincomes\"\xa4\x04\n" +
 	"\x13CreateIncomeRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1d\n" +
 	"\n" +
@@ -737,11 +753,18 @@ const file_finance_v1_income_proto_rawDesc = "" +
 	"\vcategory_id\x18\a \x01(\tH\x02R\n" +
 	"categoryId\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\b \x01(\tH\x03R\vdescription\x88\x01\x01\x12.\n" +
-	"\x04date\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04dateB\x11\n" +
+	"\x04date\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12#\n" +
+	"\n" +
+	"commission\x18\n" +
+	" \x01(\tH\x04R\n" +
+	"commission\x88\x01\x01\x124\n" +
+	"\x13commission_currency\x18\v \x01(\tH\x05R\x12commissionCurrency\x88\x01\x01B\x11\n" +
 	"\x0f_charged_amountB\x13\n" +
 	"\x11_charged_currencyB\x0e\n" +
 	"\f_category_idB\x0e\n" +
-	"\f_description\"B\n" +
+	"\f_descriptionB\r\n" +
+	"\v_commissionB\x16\n" +
+	"\x14_commission_currency\"B\n" +
 	"\x14CreateIncomeResponse\x12*\n" +
 	"\x06income\x18\x01 \x01(\v2\x12.finance.v1.IncomeR\x06income\"\xaa\x03\n" +
 	"\x13UpdateIncomeRequest\x12\x0e\n" +

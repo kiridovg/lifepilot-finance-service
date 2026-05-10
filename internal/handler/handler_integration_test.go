@@ -14,7 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	financev1 "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1"
-	"github.com/kiridovg/lifepilot-finance-service/internal/db"
 	"github.com/kiridovg/lifepilot-finance-service/internal/handler"
 	"github.com/kiridovg/lifepilot-finance-service/internal/testutil"
 )
@@ -59,7 +58,7 @@ func setup(t *testing.T) (context.Context, hs, string) {
 	h := hs{
 		account:  handler.NewAccountHandler(pool),
 		expense:  handler.NewExpenseHandler(pool),
-		income:   handler.NewIncomeHandler(db.New(pool)),
+		income:   handler.NewIncomeHandler(pool),
 		transfer: handler.NewTransferHandler(pool),
 		stats:    handler.NewStatsHandler(pool),
 	}
@@ -282,6 +281,55 @@ func TestBalance_DeleteExpenseRestores(t *testing.T) {
 	}))
 	require.NoError(t, err)
 	assert.InDelta(t, 50.0, balance(t, ctx, h, uid, acc.Id), 0.0001)
+}
+
+// Income with commission: commission is auto-created as a bank-fees expense.
+// Balance increases by income amount, then decreases by commission.
+func TestBalance_IncomeWithCommission(t *testing.T) {
+	ctx, h, uid := setup(t)
+	acc := newAccount(t, ctx, h, uid, "PrivatBank UAH", "UAH", "0", "2024-01-01")
+
+	// OLX sale: 1475.00 UAH, OLX took 7.38 UAH — net on card = 1467.62
+	res, err := h.income.CreateIncome(ctx, connect.NewRequest(&financev1.CreateIncomeRequest{
+		UserId:             uid,
+		AccountId:          acc.Id,
+		Date:               ts("2024-07-05"),
+		Amount:             "1475.00",
+		Currency:           "UAH",
+		Commission:         ptr("7.38"),
+		CommissionCurrency: ptr("UAH"),
+	}))
+	require.NoError(t, err)
+	assert.NotEmpty(t, res.Msg.Income.Id)
+
+	// balance: 0 + 1475.00 (income) - 7.38 (commission expense) = 1467.62
+	assert.InDelta(t, 1467.62, balance(t, ctx, h, uid, acc.Id), 0.0001)
+}
+
+// Delete income with commission cascades: both income and its commission expense are removed.
+func TestBalance_DeleteIncomeWithCommissionRestores(t *testing.T) {
+	ctx, h, uid := setup(t)
+	acc := newAccount(t, ctx, h, uid, "PrivatBank UAH", "UAH", "500", "2024-01-01")
+
+	res, err := h.income.CreateIncome(ctx, connect.NewRequest(&financev1.CreateIncomeRequest{
+		UserId:             uid,
+		AccountId:          acc.Id,
+		Date:               ts("2024-07-05"),
+		Amount:             "1475.00",
+		Currency:           "UAH",
+		Commission:         ptr("7.38"),
+		CommissionCurrency: ptr("UAH"),
+	}))
+	require.NoError(t, err)
+	assert.InDelta(t, 1967.62, balance(t, ctx, h, uid, acc.Id), 0.0001) // 500 + 1475 - 7.38
+
+	_, err = h.income.DeleteIncome(ctx, connect.NewRequest(&financev1.DeleteIncomeRequest{
+		Id: res.Msg.Income.Id,
+	}))
+	require.NoError(t, err)
+
+	// commission expense is ON DELETE CASCADE → auto-deleted with income
+	assert.InDelta(t, 500.0, balance(t, ctx, h, uid, acc.Id), 0.0001)
 }
 
 // Delete income restores balance.

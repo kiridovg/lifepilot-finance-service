@@ -274,6 +274,16 @@ export class CreateIncomeRequest extends Message<CreateIncomeRequest> {
    */
   date?: Timestamp;
 
+  /**
+   * @generated from field: optional string commission = 10;
+   */
+  commission?: string;
+
+  /**
+   * @generated from field: optional string commission_currency = 11;
+   */
+  commissionCurrency?: string;
+
   constructor(data?: PartialMessage<CreateIncomeRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -291,6 +301,8 @@ export class CreateIncomeRequest extends Message<CreateIncomeRequest> {
     { no: 7, name: "category_id", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 8, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 9, name: "date", kind: "message", T: Timestamp },
+    { no: 10, name: "commission", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 11, name: "commission_currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateIncomeRequest {

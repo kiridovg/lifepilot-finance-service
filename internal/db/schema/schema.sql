@@ -97,6 +97,7 @@ CREATE TABLE expenses (
     category_id       UUID        REFERENCES categories (id),
     description       TEXT,
     transfer_id       UUID        REFERENCES transfers (id) ON DELETE CASCADE,
+    income_id         UUID,
     is_refund         BOOLEAN     NOT NULL DEFAULT FALSE,
     base_amount       DECIMAL(18, 8),
     base_currency     TEXT,
@@ -154,3 +155,7 @@ CREATE INDEX idx_account_lots_remaining    ON account_lots (account_id, date) WH
 
 CREATE INDEX idx_incomes_account_id ON incomes (account_id);
 CREATE INDEX idx_incomes_date       ON incomes (date);
+
+ALTER TABLE expenses ADD CONSTRAINT fk_expenses_income_id
+    FOREIGN KEY (income_id) REFERENCES incomes (id) ON DELETE CASCADE;
+CREATE INDEX idx_expenses_income_id ON expenses (income_id);

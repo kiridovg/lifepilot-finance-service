@@ -13,9 +13,9 @@ import (
 
 const createExpense = `-- name: CreateExpense :one
 INSERT INTO expenses (user_id, date, amount, currency, charged_amount, charged_currency,
-                      account_id, category_id, description, transfer_id, base_amount, base_currency)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at
+                      account_id, category_id, description, transfer_id, income_id, base_amount, base_currency)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at
 `
 
 type CreateExpenseParams struct {
@@ -29,6 +29,7 @@ type CreateExpenseParams struct {
 	CategoryID      pgtype.UUID
 	Description     pgtype.Text
 	TransferID      pgtype.UUID
+	IncomeID        pgtype.UUID
 	BaseAmount      pgtype.Numeric
 	BaseCurrency    pgtype.Text
 }
@@ -45,6 +46,7 @@ func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (E
 		arg.CategoryID,
 		arg.Description,
 		arg.TransferID,
+		arg.IncomeID,
 		arg.BaseAmount,
 		arg.BaseCurrency,
 	)
@@ -61,6 +63,7 @@ func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (E
 		&i.CategoryID,
 		&i.Description,
 		&i.TransferID,
+		&i.IncomeID,
 		&i.IsRefund,
 		&i.BaseAmount,
 		&i.BaseCurrency,
@@ -80,7 +83,7 @@ func (q *Queries) DeleteExpense(ctx context.Context, id pgtype.UUID) error {
 }
 
 const listExpenses = `-- name: ListExpenses :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses ORDER BY date DESC
 `
 
 func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
@@ -104,6 +107,7 @@ func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
 			&i.CategoryID,
 			&i.Description,
 			&i.TransferID,
+			&i.IncomeID,
 			&i.IsRefund,
 			&i.BaseAmount,
 			&i.BaseCurrency,
@@ -121,7 +125,7 @@ func (q *Queries) ListExpenses(ctx context.Context) ([]Expense, error) {
 }
 
 const listExpensesByAccount = `-- name: ListExpensesByAccount :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses
 WHERE account_id = $1
   AND ($2::timestamptz IS NULL OR date >= $2::timestamptz)
   AND ($3::timestamptz IS NULL OR date < $3::timestamptz)
@@ -155,6 +159,7 @@ func (q *Queries) ListExpensesByAccount(ctx context.Context, arg ListExpensesByA
 			&i.CategoryID,
 			&i.Description,
 			&i.TransferID,
+			&i.IncomeID,
 			&i.IsRefund,
 			&i.BaseAmount,
 			&i.BaseCurrency,
@@ -172,7 +177,7 @@ func (q *Queries) ListExpensesByAccount(ctx context.Context, arg ListExpensesByA
 }
 
 const listExpensesByDateRange = `-- name: ListExpensesByDateRange :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses
 WHERE date >= $1 AND date < $2
 ORDER BY date DESC
 `
@@ -203,6 +208,7 @@ func (q *Queries) ListExpensesByDateRange(ctx context.Context, arg ListExpensesB
 			&i.CategoryID,
 			&i.Description,
 			&i.TransferID,
+			&i.IncomeID,
 			&i.IsRefund,
 			&i.BaseAmount,
 			&i.BaseCurrency,
@@ -220,7 +226,7 @@ func (q *Queries) ListExpensesByDateRange(ctx context.Context, arg ListExpensesB
 }
 
 const listExpensesByUser = `-- name: ListExpensesByUser :many
-SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses WHERE user_id = $1 ORDER BY date DESC
+SELECT id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at FROM expenses WHERE user_id = $1 ORDER BY date DESC
 `
 
 func (q *Queries) ListExpensesByUser(ctx context.Context, userID pgtype.UUID) ([]Expense, error) {
@@ -244,6 +250,7 @@ func (q *Queries) ListExpensesByUser(ctx context.Context, userID pgtype.UUID) ([
 			&i.CategoryID,
 			&i.Description,
 			&i.TransferID,
+			&i.IncomeID,
 			&i.IsRefund,
 			&i.BaseAmount,
 			&i.BaseCurrency,
@@ -264,7 +271,7 @@ const setExpenseBaseAmount = `-- name: SetExpenseBaseAmount :one
 UPDATE expenses
 SET base_amount = $2, base_currency = $3, updated_at = NOW()
 WHERE id = $1
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at
 `
 
 type SetExpenseBaseAmountParams struct {
@@ -288,6 +295,7 @@ func (q *Queries) SetExpenseBaseAmount(ctx context.Context, arg SetExpenseBaseAm
 		&i.CategoryID,
 		&i.Description,
 		&i.TransferID,
+		&i.IncomeID,
 		&i.IsRefund,
 		&i.BaseAmount,
 		&i.BaseCurrency,
@@ -310,7 +318,7 @@ SET account_id       = COALESCE($1, account_id),
     date             = COALESCE($9, date),
     updated_at       = NOW()
 WHERE id = $10
-RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, is_refund, base_amount, base_currency, created_at, updated_at
+RETURNING id, user_id, date, amount, currency, charged_amount, charged_currency, account_id, category_id, description, transfer_id, income_id, is_refund, base_amount, base_currency, created_at, updated_at
 `
 
 type UpdateExpenseParams struct {
@@ -352,6 +360,7 @@ func (q *Queries) UpdateExpense(ctx context.Context, arg UpdateExpenseParams) (E
 		&i.CategoryID,
 		&i.Description,
 		&i.TransferID,
+		&i.IncomeID,
 		&i.IsRefund,
 		&i.BaseAmount,
 		&i.BaseCurrency,

@@ -6,6 +6,9 @@ RETURNING *;
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1;
 
+-- name: ListAllAccounts :many
+SELECT * FROM accounts ORDER BY user_id, created_at;
+
 -- name: ListActiveAccounts :many
 SELECT * FROM accounts WHERE is_active = true ORDER BY user_id, created_at;
 

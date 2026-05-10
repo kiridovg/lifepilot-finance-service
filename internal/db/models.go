@@ -62,6 +62,7 @@ type Expense struct {
 	CategoryID      pgtype.UUID
 	Description     pgtype.Text
 	TransferID      pgtype.UUID
+	IncomeID        pgtype.UUID
 	IsRefund        bool
 	BaseAmount      pgtype.Numeric
 	BaseCurrency    pgtype.Text

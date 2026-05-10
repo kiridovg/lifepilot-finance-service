@@ -252,6 +252,42 @@ func (q *Queries) ListActiveAccountsByUser(ctx context.Context, userID pgtype.UU
 	return items, nil
 }
 
+const listAllAccounts = `-- name: ListAllAccounts :many
+SELECT id, user_id, name, payment_method, currency, initial_balance, initial_date, is_active, notes, created_at, updated_at FROM accounts ORDER BY user_id, created_at
+`
+
+func (q *Queries) ListAllAccounts(ctx context.Context) ([]Account, error) {
+	rows, err := q.db.Query(ctx, listAllAccounts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Account
+	for rows.Next() {
+		var i Account
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.PaymentMethod,
+			&i.Currency,
+			&i.InitialBalance,
+			&i.InitialDate,
+			&i.IsActive,
+			&i.Notes,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateAccount = `-- name: UpdateAccount :one
 UPDATE accounts
 SET name            = COALESCE($1, name),

@@ -43,6 +43,8 @@ message CreateIncomeRequest {
   optional string category_id = 7;
   optional string description = 8;
   google.protobuf.Timestamp date = 9;
+  optional string commission = 10;
+  optional string commission_currency = 11;
 }
 message CreateIncomeResponse { Income income = 1; }
 

@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	financev1 "github.com/kiridovg/lifepilot-finance-service/gen/finance/v1"
@@ -12,33 +14,34 @@ import (
 )
 
 type IncomeHandler struct {
-	q *db.Queries
+	pool *pgxpool.Pool
 }
 
-func NewIncomeHandler(q *db.Queries) *IncomeHandler {
-	return &IncomeHandler{q: q}
+func NewIncomeHandler(pool *pgxpool.Pool) *IncomeHandler {
+	return &IncomeHandler{pool: pool}
 }
 
 func (h *IncomeHandler) ListIncomes(ctx context.Context, req *connect.Request[financev1.ListIncomesRequest]) (*connect.Response[financev1.ListIncomesResponse], error) {
+	q := db.New(h.pool)
 	var rows []db.Income
 	var err error
 
 	m := req.Msg
 	if m.AccountId != nil {
-		rows, err = h.q.ListIncomesByAccount(ctx, db.ListIncomesByAccountParams{
+		rows, err = q.ListIncomesByAccount(ctx, db.ListIncomesByAccountParams{
 			AccountID: uuidFromString(*m.AccountId),
 			DateFrom:  nullTimestamptz(m.DateFrom),
 			DateTo:    nullTimestamptz(m.DateTo),
 		})
 	} else if m.UserId != nil {
-		rows, err = h.q.ListIncomesByUser(ctx, uuidFromString(*m.UserId))
+		rows, err = q.ListIncomesByUser(ctx, uuidFromString(*m.UserId))
 	} else if m.DateFrom != nil && m.DateTo != nil {
-		rows, err = h.q.ListIncomesByDateRange(ctx, db.ListIncomesByDateRangeParams{
+		rows, err = q.ListIncomesByDateRange(ctx, db.ListIncomesByDateRangeParams{
 			Date:   pgtype.Timestamptz{Time: m.DateFrom.AsTime(), Valid: true},
 			Date_2: pgtype.Timestamptz{Time: m.DateTo.AsTime(), Valid: true},
 		})
 	} else {
-		rows, err = h.q.ListIncomes(ctx)
+		rows, err = q.ListIncomes(ctx)
 	}
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -53,21 +56,49 @@ func (h *IncomeHandler) ListIncomes(ctx context.Context, req *connect.Request[fi
 
 func (h *IncomeHandler) CreateIncome(ctx context.Context, req *connect.Request[financev1.CreateIncomeRequest]) (*connect.Response[financev1.CreateIncomeResponse], error) {
 	m := req.Msg
-	r, err := h.q.CreateIncome(ctx, db.CreateIncomeParams{
-		UserID:          uuidFromString(m.UserId),
-		AccountID:       uuidFromString(m.AccountId),
-		Amount:          numericFromString(m.Amount),
-		Currency:        m.Currency,
-		ChargedAmount:   nullNumericFromPtr(m.ChargedAmount),
-		ChargedCurrency: nullTextFromPtr(m.ChargedCurrency),
-		CategoryID:      nullUUIDFromPtr(m.CategoryId),
-		Description:     nullTextFromPtr(m.Description),
-		Date:            pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+	var income *financev1.Income
+
+	err := pgx.BeginFunc(ctx, h.pool, func(tx pgx.Tx) error {
+		q := db.New(tx)
+
+		r, err := q.CreateIncome(ctx, db.CreateIncomeParams{
+			UserID:          uuidFromString(m.UserId),
+			AccountID:       uuidFromString(m.AccountId),
+			Amount:          numericFromString(m.Amount),
+			Currency:        m.Currency,
+			ChargedAmount:   nullNumericFromPtr(m.ChargedAmount),
+			ChargedCurrency: nullTextFromPtr(m.ChargedCurrency),
+			CategoryID:      nullUUIDFromPtr(m.CategoryId),
+			Description:     nullTextFromPtr(m.Description),
+			Date:            pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+		})
+		if err != nil {
+			return err
+		}
+
+		if m.Commission != nil && *m.Commission != "" && *m.Commission != "0" {
+			_, err = q.CreateExpense(ctx, db.CreateExpenseParams{
+				UserID:      uuidFromString(m.UserId),
+				Date:        pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true},
+				Amount:      numericFromString(*m.Commission),
+				Currency:    strDeref(m.CommissionCurrency),
+				AccountID:   uuidFromString(m.AccountId),
+				CategoryID:  systemCategoryUUID("bank-fees"),
+				IncomeID:    pgtype.UUID{Bytes: r.ID.Bytes, Valid: true},
+				Description: commissionDesc(m.Description),
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		income = incomeToProto(r)
+		return nil
 	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&financev1.CreateIncomeResponse{Income: incomeToProto(r)}), nil
+	return connect.NewResponse(&financev1.CreateIncomeResponse{Income: income}), nil
 }
 
 func (h *IncomeHandler) UpdateIncome(ctx context.Context, req *connect.Request[financev1.UpdateIncomeRequest]) (*connect.Response[financev1.UpdateIncomeResponse], error) {
@@ -76,7 +107,7 @@ func (h *IncomeHandler) UpdateIncome(ctx context.Context, req *connect.Request[f
 	if m.Date != nil {
 		dateTs = pgtype.Timestamptz{Time: m.Date.AsTime(), Valid: true}
 	}
-	r, err := h.q.UpdateIncome(ctx, db.UpdateIncomeParams{
+	r, err := db.New(h.pool).UpdateIncome(ctx, db.UpdateIncomeParams{
 		ID:              uuidFromString(m.Id),
 		Amount:          nullNumericFromPtr(m.Amount),
 		Currency:        nullTextFromPtr(m.Currency),
@@ -93,7 +124,7 @@ func (h *IncomeHandler) UpdateIncome(ctx context.Context, req *connect.Request[f
 }
 
 func (h *IncomeHandler) DeleteIncome(ctx context.Context, req *connect.Request[financev1.DeleteIncomeRequest]) (*connect.Response[financev1.DeleteIncomeResponse], error) {
-	if err := h.q.DeleteIncome(ctx, uuidFromString(req.Msg.Id)); err != nil {
+	if err := db.New(h.pool).DeleteIncome(ctx, uuidFromString(req.Msg.Id)); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	return connect.NewResponse(&financev1.DeleteIncomeResponse{}), nil
